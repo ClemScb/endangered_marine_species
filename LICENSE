@@ -1,0 +1,38 @@
+MIT License
+
+Copyright (c) 2026 Le Registre
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTE SUR LES CONTENUS ET LES DÉPENDANCES
+
+- Le code source est sous licence MIT (ci-dessus).
+- Les textes rédigés et les fiches d'espèces sont sous licence
+  Creative Commons Attribution - Partage dans les mêmes conditions 4.0
+  (CC BY-SA 4.0) : https://creativecommons.org/licenses/by-sa/4.0/deed.fr
+- Leaflet 1.9.4 : licence BSD 2-Clause, © Volodymyr Agafonkin, CloudMade.
+  Voir assets/js/leaflet.js.
+- Police Archivo : SIL Open Font License 1.1, © Omnibus-Type.
+- Police Newsreader : SIL Open Font License 1.1, © Production Type.
+- Données de statut : Liste rouge de l'UICN. Consulter les conditions
+  d'utilisation de l'UICN avant toute réutilisation à grande échelle.
+- Fonds de carte : Esri / HERE / Garmin / OpenStreetMap, ou CARTO selon
+  la configuration. L'attribution doit rester visible sur la carte.

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Registre — les espèces menacées qui vivent près de chez vous</title>
+<meta name="description" content="1 247 espèces menacées, classées sur l'échelle UICN. Choisissez votre ville de Méditerranée et découvrez lesquelles vivent à moins de 250 km de chez vous.">
+<meta name="author" content="Le Registre">
+<meta name="theme-color" content="#04141A">
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  À REMPLACER : l'adresse publique de votre site.          ║
+     ║  Sans ça, l'aperçu de partage ne s'affichera pas.         ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<link rel="canonical" href="https://VOTRE-COMPTE.github.io/le-registre/">
+<meta property="og:url" content="https://VOTRE-COMPTE.github.io/le-registre/">
+<meta property="og:image" content="https://VOTRE-COMPTE.github.io/le-registre/assets/img/og.png">
+<meta name="twitter:image" content="https://VOTRE-COMPTE.github.io/le-registre/assets/img/og.png">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Le Registre">
+<meta property="og:title" content="1 247 noms sur cette liste. Aucun n'est encore définitif.">
+<meta property="og:description" content="Les espèces menacées de Méditerranée, cartographiées. Choisissez votre ville : la carte ne garde en couleur que ce qui vit dans votre rayon.">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="1 247 points colorés selon le degré de menace UICN, sur fond de mer profonde.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="1 247 noms sur cette liste. Aucun n'est encore définitif.">
+<meta name="twitter:description" content="Les espèces menacées de Méditerranée, cartographiées par proximité.">
+
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+
+<link rel="preload" href="assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/leaflet.css">
+<style>
+/* ─────────────────────────────────────────────
+   POLICES AUTO-HÉBERGÉES
+   Aucune requête vers un serveur tiers : aucune
+   adresse IP de visiteur n'est transmise.
+   ───────────────────────────────────────────── */
+@font-face{
+  font-family:"Archivo";
+  src:url("assets/fonts/archivo-var.woff2") format("woff2");
+  font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:"Newsreader";
+  src:url("assets/fonts/newsreader-italic.woff2") format("woff2");
+  font-weight:400;font-style:italic;font-display:swap;
+}
+
+/* ─────────────────────────────────────────────
+   JETONS
+   ───────────────────────────────────────────── */
+:root{
+  --abysse:#04141A;
+  --fond:#0A222B;
+  --fond-2:#0E2C37;
+  --filet:rgba(163,197,205,.16);
+  --filet-fort:rgba(163,197,205,.34);
+  --brume:#8AA7AF;
+  --craie:#EEF4F2;
+  --vif:#2EC4B6;
+
+  --lc:#5BA85A;
+  --nt:#9EC24C;
+  --vu:#E5B23A;
+  --en:#E07A2C;
+  --cr:#D4382C;
+  --ew:#AD9CC7;
+  --ex:#93A3A9;
+
+  --marge:clamp(20px,5vw,72px);
+  --max:1320px;
+
+  --t-xs:.74rem;
+  --t-s:.86rem;
+  --t-m:1rem;
+  --t-l:clamp(1.15rem,1.6vw,1.45rem);
+  --t-xl:clamp(1.9rem,4vw,3.1rem);
+  --t-xxl:clamp(3rem,8.5vw,7rem);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--abysse);
+  color:var(--craie);
+  font-family:"Archivo",system-ui,sans-serif;
+  font-variation-settings:"wdth" 100;
+  font-size:var(--t-m);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,p,figure,ul,ol{margin:0}
+ul{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--vif);outline-offset:3px;border-radius:2px}
+
+.tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.bino{font-family:"Newsreader",Georgia,serif;font-style:italic;font-weight:400;letter-spacing:.01em}
+
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--marge)}
+
+/* bandes : un seul endroit qui gère l'espacement vertical */
+.band{padding-block:clamp(64px,9vw,130px);position:relative}
+.band + .band{border-top:1px solid var(--filet)}
+
+/* ─────────────────────────────────────────────
+   EN-TÊTE
+   ───────────────────────────────────────────── */
+.top{
+  position:sticky;top:0;z-index:60;
+  backdrop-filter:blur(14px);
+  background:linear-gradient(to bottom,rgba(4,20,26,.92),rgba(4,20,26,.6));
+  border-bottom:1px solid var(--filet);
+}
+.top-in{display:flex;align-items:center;gap:28px;height:58px}
+.mark{display:flex;align-items:center;gap:10px;font-weight:600;font-size:var(--t-s);letter-spacing:.02em;white-space:nowrap}
+.mark svg{display:block}
+.top nav{margin-left:auto;display:flex;gap:22px;font-size:var(--t-s);color:var(--brume)}
+.top nav a{text-decoration:none;padding-block:6px;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+.top nav a:hover{color:var(--craie);border-color:var(--filet-fort)}
+@media(max-width:660px){.top nav a:nth-child(n+3){display:none}}
+
+/* ─────────────────────────────────────────────
+   HÉROS
+   ───────────────────────────────────────────── */
+.hero{position:relative;min-height:clamp(560px,84vh,860px);display:flex;align-items:flex-end;overflow:hidden}
+#champ{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 20% 100%,rgba(4,20,26,.94) 12%,rgba(4,20,26,0) 62%),
+    linear-gradient(to bottom,rgba(4,20,26,.55),rgba(4,20,26,0) 34%);
+}
+.hero-in{position:relative;z-index:2;width:100%;padding-bottom:clamp(48px,7vw,88px);padding-top:120px}
+.compte{
+  font-variation-settings:"wdth" 78;
+  font-weight:700;
+  font-size:var(--t-xxl);
+  line-height:.82;
+  letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums;
+  display:block;
+}
+.hero h1{margin:0;font-weight:400}
+.h1-suite{
+  display:block;
+  font-size:var(--t-xl);
+  font-weight:400;
+  line-height:1.08;
+  letter-spacing:-.02em;
+  max-width:16ch;
+  margin-top:.22em;
+  font-variation-settings:"wdth" 92;
+}
+.hero p{margin-top:1.1em;max-width:46ch;color:var(--brume);font-size:var(--t-l);line-height:1.45}
+.actes{display:flex;flex-wrap:wrap;gap:12px;margin-top:2.2em}
+.acte{
+  border:1px solid var(--filet-fort);
+  padding:11px 20px;border-radius:2px;
+  font-size:var(--t-s);font-weight:500;text-decoration:none;
+  transition:background .18s,border-color .18s;
+}
+.acte:hover{background:rgba(46,196,182,.1);border-color:var(--vif)}
+.acte.plein{background:var(--craie);color:var(--abysse);border-color:var(--craie)}
+.acte.plein:hover{background:var(--vif);border-color:var(--vif);color:var(--abysse)}
+
+/* ─────────────────────────────────────────────
+   L'ÉCHELLE
+   ───────────────────────────────────────────── */
+.chapo{max-width:52ch}
+.chapo h2{font-size:var(--t-xl);font-weight:400;line-height:1.1;letter-spacing:-.02em;font-variation-settings:"wdth" 92}
+.chapo p{margin-top:1em;color:var(--brume);max-width:48ch}
+
+.echelle{margin-top:clamp(40px,6vw,72px);display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.degre{
+  position:relative;text-align:left;padding:16px 12px 18px;
+  background:var(--fond);border:1px solid transparent;border-radius:2px;
+  transition:background .18s,transform .18s;
+  display:flex;flex-direction:column;gap:6px;min-height:132px;
+}
+.degre::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c)}
+.degre:hover{background:var(--fond-2);transform:translateY(-3px)}
+.degre[aria-pressed="true"]{background:var(--fond-2);border-color:var(--c)}
+.degre .code{font-weight:700;font-size:1.05rem;color:var(--c);letter-spacing:.04em}
+.degre .nom{font-size:var(--t-xs);color:var(--brume);line-height:1.25;min-height:2.4em}
+.degre .n{margin-top:auto;font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 84}
+@media(max-width:900px){.echelle{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:520px){.echelle{grid-template-columns:repeat(2,1fr)}.degre{min-height:104px}}
+
+.legende-sens{
+  display:flex;align-items:center;gap:14px;margin-top:18px;
+  font-size:var(--t-xs);color:var(--brume);
+}
+.legende-sens .fleche{flex:1;height:1px;background:linear-gradient(to right,var(--lc),var(--cr),var(--ex));opacity:.6}
+
+/* ─────────────────────────────────────────────
+   REGISTRE
+   ───────────────────────────────────────────── */
+.reg-tete{display:flex;flex-wrap:wrap;align-items:flex-end;gap:20px 32px}
+.reg-tete h2{font-size:var(--t-xl);font-weight:400;letter-spacing:-.02em;font-variation-settings:"wdth" 92;line-height:1}
+.chercher{position:relative;flex:1;min-width:240px;max-width:420px;margin-left:auto}
+.chercher input{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--filet-fort);
+  color:var(--craie);font:inherit;font-size:var(--t-s);padding:10px 0 10px 26px;
+}
+.chercher input::placeholder{color:var(--brume)}
+.chercher input:focus{outline:0;border-color:var(--vif)}
+.chercher svg{position:absolute;left:0;top:50%;transform:translateY(-50%);opacity:.55}
+
+.filtres{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px;align-items:center}
+.puce{
+  border:1px solid var(--filet);border-radius:999px;padding:5px 13px;
+  font-size:var(--t-xs);color:var(--brume);transition:.16s;
+}
+.puce:hover{color:var(--craie);border-color:var(--filet-fort)}
+.puce[aria-pressed="true"]{background:var(--craie);color:var(--abysse);border-color:var(--craie);font-weight:600}
+
+.compteur{margin-top:26px;font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums}
+
+/* lignes du registre */
+.registre{margin-top:10px;border-top:1px solid var(--filet)}
+.ligne{border-bottom:1px solid var(--filet)}
+.ligne-tete{
+  width:100%;display:grid;
+  grid-template-columns:54px minmax(0,1.2fr) minmax(0,.8fr) 132px 26px;
+  align-items:center;gap:18px;padding:18px 4px;text-align:left;
+  transition:background .16s;
+}
+.ligne-tete:hover{background:rgba(163,197,205,.045)}
+.statut{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:40px;padding:3px 7px;border-radius:2px;
+  font-size:.72rem;font-weight:700;letter-spacing:.05em;
+  background:var(--c);color:#06171D;
+}
+.nom-fr{font-size:clamp(1.02rem,1.5vw,1.3rem);font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.nom-lat{display:block;font-size:var(--t-s);color:var(--brume);margin-top:3px}
+.milieu{font-size:var(--t-s);color:var(--brume)}
+.tendance{font-size:var(--t-xs);color:var(--brume);display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.tendance b{font-weight:600;color:var(--craie)}
+.chev{opacity:.5;transition:transform .22s ease}
+.ligne[data-ouvert="true"] .chev{transform:rotate(90deg);opacity:1}
+@media(max-width:820px){
+  .ligne-tete{grid-template-columns:48px minmax(0,1fr) 26px;gap:14px}
+  .milieu,.tendance{display:none}
+}
+
+/* fiche dépliée */
+.fiche{display:none;padding:4px 4px 30px}
+.ligne[data-ouvert="true"] .fiche{display:grid}
+.fiche{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px)}
+@media(max-width:820px){.fiche{grid-template-columns:1fr}}
+.fiche p{color:var(--brume);max-width:58ch;font-size:var(--t-s);line-height:1.6}
+.soustitre{font-size:var(--t-xs);color:var(--craie);font-weight:600;margin-bottom:12px;letter-spacing:.01em}
+
+.menaces{display:flex;flex-direction:column;gap:11px}
+.menace{display:grid;grid-template-columns:1fr 78px;gap:10px;align-items:center;font-size:var(--t-xs)}
+.menace .jauge{grid-column:1/-1;height:3px;background:rgba(163,197,205,.14);border-radius:2px;overflow:hidden}
+.menace .jauge i{display:block;height:100%;background:var(--g);border-radius:2px}
+.menace .lvl{text-align:right;color:var(--brume)}
+
+.faits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--filet);border:1px solid var(--filet);border-radius:2px;margin-top:20px}
+.fait{background:var(--abysse);padding:12px 14px}
+.fait dt{font-size:var(--t-xs);color:var(--brume)}
+.fait dd{margin:4px 0 0;font-size:var(--t-s);font-weight:500;font-variant-numeric:tabular-nums}
+
+.vide{padding:52px 4px;color:var(--brume);font-size:var(--t-s)}
+.vide b{display:block;color:var(--craie);font-size:var(--t-m);margin-bottom:6px;font-weight:500}
+
+/* ─────────────────────────────────────────────
+   UNE ESPÈCE EN ENTIER
+   ───────────────────────────────────────────── */
+.zoom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(28px,5vw,70px);align-items:start}
+@media(max-width:880px){.zoom{grid-template-columns:1fr}}
+.zoom-nom{font-size:clamp(2rem,5vw,3.6rem);font-weight:600;line-height:.95;letter-spacing:-.03em;font-variation-settings:"wdth" 82}
+.zoom-lat{font-size:clamp(1.05rem,2vw,1.5rem);color:var(--brume);margin-top:.4em;display:block}
+.zoom p{color:var(--brume);margin-top:1.3em;max-width:44ch}
+.courbe{margin-top:8px;border:1px solid var(--filet);border-radius:2px;padding:18px 18px 10px;background:var(--fond)}
+.courbe svg{width:100%;height:auto;display:block;overflow:visible}
+.courbe figcaption{font-size:var(--t-xs);color:var(--brume);margin-top:12px;line-height:1.45}
+
+/* ─────────────────────────────────────────────
+   AGIR
+   ───────────────────────────────────────────── */
+.leviers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--filet);border:1px solid var(--filet);border-radius:2px;margin-top:clamp(32px,5vw,56px)}
+@media(max-width:800px){.leviers{grid-template-columns:1fr}}
+.levier{background:var(--abysse);padding:clamp(22px,3vw,34px)}
+.levier h3{font-size:var(--t-l);font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.levier p{color:var(--brume);font-size:var(--t-s);margin-top:.7em;line-height:1.6}
+.levier .gain{margin-top:1.2em;font-size:var(--t-xs);color:var(--vif);font-variant-numeric:tabular-nums}
+
+/* ─────────────────────────────────────────────
+   PIED
+   ───────────────────────────────────────────── */
+.pied{border-top:1px solid var(--filet);padding-block:44px;font-size:var(--t-xs);color:var(--brume)}
+.pied-in{display:flex;flex-wrap:wrap;gap:24px 48px;justify-content:space-between;align-items:flex-start}
+.pied a{color:var(--brume);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--filet-fort)}
+.pied a:hover{color:var(--craie)}
+.pied p{max-width:56ch;line-height:1.6}
+
+/* ─────────────────────────────────────────────
+   CARTE
+   ───────────────────────────────────────────── */
+.carte-grille{
+  display:grid;grid-template-columns:330px minmax(0,1fr);gap:1px;
+  background:var(--filet);border:1px solid var(--filet);border-radius:2px;
+  margin-top:clamp(30px,4.5vw,54px);overflow:hidden;
+}
+@media(max-width:920px){.carte-grille{grid-template-columns:1fr}}
+
+.panneau{background:var(--abysse);padding:22px 20px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.champ-lab{display:block;font-size:var(--t-xs);color:var(--brume);margin-bottom:7px}
+.selecteur{
+  width:100%;background:var(--fond);color:var(--craie);font:inherit;font-size:var(--t-s);
+  border:1px solid var(--filet-fort);border-radius:2px;padding:9px 11px;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238AA7AF' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+}
+.selecteur:focus{outline:0;border-color:var(--vif)}
+.rayons{display:flex;gap:6px}
+.rayons button{
+  flex:1;border:1px solid var(--filet);border-radius:2px;padding:7px 0;
+  font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums;transition:.16s;
+}
+.rayons button:hover{color:var(--craie);border-color:var(--filet-fort)}
+.rayons button[aria-pressed="true"]{background:var(--craie);color:var(--abysse);border-color:var(--craie);font-weight:600}
+.geo{
+  display:flex;align-items:center;gap:8px;font-size:var(--t-xs);color:var(--vif);
+  padding:0;margin-top:-6px;
+}
+.geo:hover{text-decoration:underline;text-underline-offset:3px}
+
+.verdict{border-top:1px solid var(--filet);padding-top:18px}
+.verdict .gros{
+  font-size:2.6rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;
+  font-variation-settings:"wdth" 80;display:block;
+}
+.verdict p{font-size:var(--t-xs);color:var(--brume);margin-top:8px;line-height:1.5;max-width:34ch}
+
+.repartition{display:flex;gap:2px;margin-top:14px;height:5px;border-radius:2px;overflow:hidden}
+.repartition i{display:block;height:100%}
+.repartition-lg{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:10px;font-size:.7rem;color:var(--brume)}
+.repartition-lg span{display:flex;align-items:center;gap:5px}
+.repartition-lg b{width:7px;height:7px;border-radius:50%;display:block}
+
+.proches{display:flex;flex-direction:column;max-height:290px;overflow:auto;margin:0 -20px -22px;border-top:1px solid var(--filet)}
+.prox{
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:11px;align-items:center;
+  padding:11px 20px;text-align:left;border-bottom:1px solid var(--filet);transition:background .15s;
+}
+.prox:hover{background:rgba(163,197,205,.06)}
+.prox b{display:block;font-size:var(--t-s);font-weight:500;line-height:1.25}
+.prox i{display:block;font-family:"Newsreader",Georgia,serif;font-size:.76rem;color:var(--brume);margin-top:1px}
+.prox .km{font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums;white-space:nowrap}
+.prox .statut{font-size:.64rem;min-width:32px;padding:2px 5px}
+.prox-vide{padding:22px 20px;font-size:var(--t-xs);color:var(--brume);line-height:1.55}
+
+#lacarte{
+  height:clamp(400px,64vh,660px);min-height:400px;
+  background:radial-gradient(120% 120% at 50% 0%,#0B3040,#051C24 60%,#04141A);
+}
+.leaflet-container{font-family:"Archivo",system-ui,sans-serif;background:#051C24}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{
+  background:#0A222B;color:#EEF4F2;border:1px solid rgba(163,197,205,.34);
+  border-radius:2px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.leaflet-popup-content{margin:13px 15px;font-size:.86rem;line-height:1.45}
+.leaflet-popup-content b{display:block;font-size:.98rem;font-weight:500}
+.leaflet-popup-content em{font-family:"Newsreader",Georgia,serif;font-style:italic;color:#8AA7AF;font-size:.84rem}
+.leaflet-popup-content .lieu{display:block;margin-top:7px;font-size:.74rem;color:#8AA7AF}
+.leaflet-popup-close-button{color:#8AA7AF!important}
+.leaflet-control-attribution{background:rgba(4,20,26,.82)!important;color:#63797F!important;font-size:10px!important}
+.leaflet-control-attribution a{color:#8AA7AF!important}
+.leaflet-bar a,.leaflet-bar a:hover{
+  background:#0A222B;color:#EEF4F2;border-bottom-color:rgba(163,197,205,.2);
+}
+.leaflet-bar a:hover{background:#0E2C37}
+.marqueur-vous{
+  width:14px;height:14px;border-radius:50%;background:var(--vif);
+  box-shadow:0 0 0 4px rgba(46,196,182,.22),0 0 0 9px rgba(46,196,182,.1);
+}
+
+/* ─────────────────────────────────────────────
+   ACCESSIBILITÉ, SOURCES, AGRÉGATS
+   ───────────────────────────────────────────── */
+.evitement{
+  position:absolute;left:-9999px;top:0;z-index:200;
+  background:var(--craie);color:var(--abysse);padding:11px 18px;
+  font-size:var(--t-s);font-weight:600;border-radius:0 0 2px 0;
+}
+.evitement:focus{left:0}
+
+.sources{margin-top:20px;padding-top:16px;border-top:1px solid var(--filet)}
+.sources ul{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sources a{
+  display:inline-block;border:1px solid var(--filet-fort);border-radius:2px;
+  padding:5px 11px;font-size:var(--t-xs);text-decoration:none;color:var(--brume);
+  transition:.16s;
+}
+.sources a:hover{color:var(--craie);border-color:var(--vif);background:rgba(46,196,182,.08)}
+.evalue{font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums}
+.evalue b{color:var(--craie);font-weight:600}
+
+.agregat{
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;color:#04141A;font-weight:700;
+  font-size:.72rem;font-variant-numeric:tabular-nums;
+  border:1.5px solid rgba(4,20,26,.75);
+  font-family:"Archivo",sans-serif;
+}
+.alerte-tuiles{
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:500;
+  background:rgba(10,34,43,.95);border:1px solid var(--filet-fort);border-radius:2px;
+  padding:13px 15px;font-size:var(--t-xs);color:var(--brume);line-height:1.55;
+}
+.alerte-tuiles b{display:block;color:var(--craie);font-weight:600;margin-bottom:3px}
+.alerte-tuiles a{color:var(--vif)}
+.note-vie-privee{font-size:.7rem;color:var(--brume);line-height:1.5;margin-top:-10px}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<a class="evitement" href="#contenu">Aller au contenu</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <span class="mark">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <circle cx="9" cy="9" r="7.5" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".45"/>
+        <circle cx="9" cy="9" r="3" fill="#D4382C"/>
+      </svg>
+      Le Registre
+    </span>
+    <nav>
+      <a href="#carte">La carte</a>
+      <a href="#echelle">L'échelle</a>
+      <a href="#registre">Les espèces</a>
+      <a href="#zoom">Une fiche</a>
+      <a href="#agir">Agir</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+  <!-- HÉROS -->
+  <section class="hero">
+    <canvas id="champ" aria-hidden="true"></canvas>
+    <div class="wrap hero-in">
+      <h1>
+        <span class="compte tnum" id="compte">1 247</span>
+        <span class="h1-suite">noms sur cette liste. Aucun n'est encore définitif.</span>
+      </h1>
+      <p>Chaque point est une espèce évaluée par l'UICN. Sa couleur dit combien de marge il lui reste.</p>
+      <div class="actes">
+        <a class="acte plein" href="#carte">Voir celles qui vivent près de moi</a>
+        <a class="acte" href="#registre">Ouvrir le registre</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARTE -->
+  <section class="band" id="carte">
+    <div class="wrap">
+      <div class="chapo">
+        <h2>Elles ne sont pas au bout du monde.</h2>
+        <p>Chaque point est un site où l'espèce est observée ou se reproduit. Choisissez la ville la plus proche de chez vous : la carte ne garde en couleur que ce qui se trouve dans votre rayon.</p>
+      </div>
+
+      <div class="carte-grille">
+        <div class="panneau">
+          <div>
+            <label class="champ-lab" for="ville">Votre point de départ</label>
+            <select class="selecteur" id="ville"></select>
+            <button class="geo" id="geoloc" type="button">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2" fill="currentColor"/><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 0v2M6 10v2M0 6h2M10 6h2" stroke="currentColor" stroke-width="1.1"/></svg>
+              Utiliser ma position
+            </button>
+            <p class="note-vie-privee">Votre position reste dans votre navigateur. Elle sert uniquement
+            à calculer des distances et n'est envoyée à aucun serveur.</p>
+          </div>
+
+          <div>
+            <span class="champ-lab">Rayon</span>
+            <div class="rayons" id="rayons" role="group" aria-label="Rayon de recherche"></div>
+          </div>
+
+          <div class="verdict">
+            <span class="gros tnum" id="v-nb">—</span>
+            <p id="v-txt">Sélectionnez une ville pour compter les espèces menacées autour de vous.</p>
+            <div class="repartition" id="v-bar" aria-hidden="true"></div>
+            <div class="repartition-lg" id="v-lg"></div>
+          </div>
+
+          <div class="proches" id="proches"></div>
+        </div>
+
+        <div style="position:relative;min-width:0">
+          <div id="lacarte" role="application"
+               aria-label="Carte des espèces menacées de Méditerranée. La liste de proximité ci-contre présente les mêmes informations sous forme de texte."></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- L'ÉCHELLE -->
+  <section class="band" id="echelle">
+    <div class="wrap">
+      <div class="chapo">
+        <h2>Une espèce ne disparaît pas d'un coup. Elle descend.</h2>
+        <p>L'UICN classe chaque espèce évaluée sur sept degrés. Le passage d'un degré au suivant prend parfois trente ans, parfois cinq. Choisissez un degré pour filtrer le registre.</p>
+      </div>
+
+      <div class="echelle" id="echelle-grille" role="group" aria-label="Degrés de menace UICN"></div>
+
+      <div class="legende-sens">
+        <span>Population stable</span>
+        <span class="fleche" aria-hidden="true"></span>
+        <span>Plus aucun individu</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRE -->
+  <section class="band" id="registre">
+    <div class="wrap">
+      <div class="reg-tete">
+        <h2>Le registre</h2>
+        <label class="chercher">
+          <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input id="q" type="search" placeholder="Chercher un nom, un milieu, une région" aria-label="Chercher une espèce">
+        </label>
+      </div>
+
+      <div class="filtres" id="filtres" role="group" aria-label="Filtrer par milieu"></div>
+      <p class="compteur" id="compteur"></p>
+
+      <div class="registre" id="liste"></div>
+    </div>
+  </section>
+
+  <!-- ZOOM -->
+  <section class="band" id="zoom">
+    <div class="wrap zoom">
+      <div>
+        <h2 class="zoom-nom">Phoque moine<br>de Méditerranée<span class="bino zoom-lat">Monachus monachus</span></h2>
+        <p>C'est le mammifère marin le plus rare d'Europe. Dans les années 1970, il ne restait que quelques centaines d'individus, dispersés dans des grottes inaccessibles de la mer Égée et de l'Atlantique marocain.</p>
+        <p>Puis la protection des sites de mise bas a été appliquée sérieusement. La population remonte depuis. C'est lent, c'est fragile, et c'est réel : une espèce peut remonter l'échelle.</p>
+        <div class="actes" style="margin-top:2em">
+          <a class="acte" href="#agir">Ce qui a marché ici</a>
+        </div>
+      </div>
+
+      <figure class="courbe">
+        <svg viewBox="0 0 560 230" role="img" aria-label="Courbe de population estimée du phoque moine de Méditerranée, d'environ 400 individus en 1980 à environ 800 en 2025">
+          <defs>
+            <linearGradient id="sous" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2EC4B6" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="#2EC4B6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- grille -->
+          <g stroke="rgba(163,197,205,.15)" stroke-width="1">
+            <line x1="0" y1="10"  x2="560" y2="10"/>
+            <line x1="0" y1="80"  x2="560" y2="80"/>
+            <line x1="0" y1="150" x2="560" y2="150"/>
+            <line x1="0" y1="196" x2="560" y2="196"/>
+          </g>
+          <g fill="#8AA7AF" font-size="11" font-family="Archivo,sans-serif" style="font-variant-numeric:tabular-nums">
+            <text x="0" y="6">900</text>
+            <text x="0" y="76">700</text>
+            <text x="0" y="146">500</text>
+            <text x="0" y="212">1980</text>
+            <text x="248" y="212">2000</text>
+            <text x="516" y="212">2025</text>
+          </g>
+          <path d="M42,168 C110,172 150,164 196,158 C250,150 292,136 340,112 C392,86 440,70 520,52 L520,196 L42,196 Z" fill="url(#sous)"/>
+          <path d="M42,168 C110,172 150,164 196,158 C250,150 292,136 340,112 C392,86 440,70 520,52"
+                fill="none" stroke="#2EC4B6" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="520" cy="52" r="4.5" fill="#2EC4B6"/>
+          <circle cx="520" cy="52" r="9" fill="none" stroke="#2EC4B6" stroke-opacity=".4" stroke-width="1.2"/>
+        </svg>
+        <figcaption>Population mondiale estimée, tous sites confondus. Valeurs d'exemple destinées à la maquette — à remplacer par vos sources avant publication.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- AGIR -->
+  <section class="band" id="agir">
+    <div class="wrap">
+      <div class="chapo">
+        <h2>Trois choses qui ont déjà fait remonter des espèces</h2>
+        <p>Pas des gestes symboliques : des mesures dont l'effet a été mesuré sur des populations réelles.</p>
+      </div>
+      <div class="leviers">
+        <article class="levier">
+          <h3>Fermer les sites de reproduction</h3>
+          <p>Interdire l'accès aux grottes, plages et falaises pendant la mise bas. C'est la mesure la moins coûteuse et la plus efficace connue pour les phoques, les tortues marines et les oiseaux de falaise.</p>
+          <p class="gain">Phoque moine : population doublée en quarante ans</p>
+        </article>
+        <article class="levier">
+          <h3>Changer un engin de pêche</h3>
+          <p>Répulsifs acoustiques sur les filets maillants, hameçons circulaires, dispositifs d'échappement pour les tortues. Les captures accidentelles chutent sans que les prises ciblées s'effondrent.</p>
+          <p class="gain">Tortues : jusqu'à 90 % de captures évitées selon l'engin</p>
+        </article>
+        <article class="levier">
+          <h3>Rendre les quotas contraignants</h3>
+          <p>Le thon rouge de l'Atlantique était donné pour condamné dans les années 2000. Des quotas réellement appliqués et contrôlés l'ont ramené hors de la zone de menace en une décennie.</p>
+          <p class="gain">Thon rouge : sorti de la liste des espèces menacées en 2021</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pied">
+  <div class="wrap pied-in">
+    <p>
+      <strong style="color:var(--craie);font-weight:600">Le Registre</strong><br>
+      Dernière mise à jour des données&nbsp;: <time datetime="2026-09-12">12 septembre 2026</time>.<br>
+      Statuts et effectifs sont des instantanés d'illustration&nbsp;: ils peuvent être périmés.
+      Chaque fiche renvoie vers la source pour vérification.
+    </p>
+    <p>
+      Sources&nbsp;: <a href="https://www.iucnredlist.org" target="_blank" rel="noopener">Liste rouge UICN</a>
+      pour les statuts, <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a> pour les
+      observations. Les points de la carte sont des sites connus, localisés approximativement&nbsp;;
+      certaines coordonnées sont volontairement imprécises pour les espèces braconnées.
+    </p>
+    <p>
+      Code sous licence MIT, textes sous
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr" target="_blank" rel="noopener">CC BY-SA 4.0</a>.<br>
+      <a href="https://github.com/VOTRE-COMPTE/le-registre" target="_blank" rel="noopener">Code source et signalement d'erreurs</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+/* ═════════════════════════════════════════════
+   DONNÉES
+   Instantané d'illustration. À remplacer par
+   l'API UICN v4 : GET /api/v4/taxa/scientific_name
+   ═════════════════════════════════════════════ */
+const DEGRES = [
+  {code:"LC", nom:"Préoccupation mineure", c:"var(--lc)", n:112},
+  {code:"NT", nom:"Quasi menacée",         c:"var(--nt)", n:168},
+  {code:"VU", nom:"Vulnérable",            c:"var(--vu)", n:394},
+  {code:"EN", nom:"En danger",             c:"var(--en)", n:311},
+  {code:"CR", nom:"En danger critique",    c:"var(--cr)", n:184},
+  {code:"EW", nom:"Éteinte à l'état sauvage", c:"var(--ew)", n:22},
+  {code:"EX", nom:"Éteinte",               c:"var(--ex)", n:56}
+];
+
+const ESPECES = [
+  {fr:"Vaquita", lat:"Phocoena sinus", st:"CR", milieu:"Marin", region:"Golfe de Californie", tend:"↓", reste:"≈ 10 individus",
+   txt:"Le plus petit marsouin du monde, et le mammifère marin le plus proche de l'extinction. Il n'existe que dans un carré de mer de 4 000 km². Il n'est pas chassé : il meurt dans les filets posés pour un autre poisson, le totoaba.",
+   menaces:[["Captures accidentelles",100],["Pêche illégale",88],["Consanguinité",62],["Pollution",24]],
+   faits:[["Aire de répartition","4 000 km²"],["Première alerte","1996"],["Tendance","En chute"],["Dernière évaluation","2023"]]},
+
+  {fr:"Rhinocéros de Java", lat:"Rhinoceros sondaicus", st:"CR", milieu:"Forêt tropicale", region:"Java, Indonésie", tend:"→", reste:"≈ 75 individus",
+   txt:"Toute l'espèce vit dans un seul parc national, à l'extrémité occidentale de Java. Un tsunami, une épidémie ou une éruption du Krakatau voisin suffirait. Aucun individu n'est détenu en captivité.",
+   menaces:[["Population unique",100],["Braconnage",70],["Perte d'habitat",58],["Maladies",52]],
+   faits:[["Sites connus","1"],["En captivité","0"],["Tendance","Stable"],["Dernière évaluation","2020"]]},
+
+  {fr:"Gorille de l'Est", lat:"Gorilla beringei", st:"CR", milieu:"Forêt de montagne", region:"Afrique centrale", tend:"↓", reste:"≈ 5 000 individus",
+   txt:"Deux sous-espèces, deux trajectoires opposées. Le gorille des montagnes remonte lentement grâce au tourisme encadré ; le gorille de Grauer a perdu la majorité de ses effectifs en vingt ans, dans une région où l'exploitation minière artisanale a suivi les conflits armés.",
+   menaces:[["Braconnage",92],["Conflits armés",84],["Perte d'habitat",76],["Maladies",44]],
+   faits:[["Sous-espèces","2"],["Tendance","En baisse"],["Aire protégée","Partielle"],["Dernière évaluation","2018"]]},
+
+  {fr:"Anguille d'Europe", lat:"Anguilla anguilla", st:"CR", milieu:"Eau douce et marin", region:"Europe, Afrique du Nord", tend:"↓", reste:"−95 % de civelles",
+   txt:"Elle naît dans la mer des Sargasses, traverse l'Atlantique, remonte les fleuves européens, puis repart pondre là où elle est née. Chaque barrage, chaque turbine, chaque seuil coupe ce trajet. Le recrutement de jeunes civelles s'est effondré depuis 1980.",
+   menaces:[["Obstacles aux migrations",96],["Surpêche des civelles",90],["Trafic illégal",78],["Parasites",56]],
+   faits:[["Recrutement vs 1980","≈ 5 %"],["Trajet de ponte","6 000 km"],["Tendance","En chute"],["Dernière évaluation","2020"],[41.05,29.60,"Bosphore"],[31.30,32.00,"Lac Manzala"],[37.55,21.30,"Lagune de Kotychi"],[43.05,17.45,"Delta de la Neretva"]]},
+
+  {fr:"Axolotl", lat:"Ambystoma mexicanum", st:"CR", milieu:"Eau douce", region:"Xochimilco, Mexique", tend:"↓", reste:"Quelques dizaines",
+   txt:"Des centaines de milliers d'axolotls vivent dans les aquariums et les laboratoires du monde entier. À l'état sauvage, il ne subsiste que dans les canaux de Xochimilco, aux portes de Mexico, où l'eau se charge d'ammoniac et de poissons introduits.",
+   menaces:[["Pollution de l'eau",94],["Espèces introduites",86],["Urbanisation",80],["Prélèvements",30]],
+   faits:[["Habitat restant","Canaux de Xochimilco"],["En captivité","> 1 million"],["Tendance","En baisse"],["Dernière évaluation","2019"]]},
+
+  {fr:"Esturgeon européen", lat:"Acipenser sturio", st:"CR", milieu:"Eau douce et marin", region:"Gironde, Atlantique", tend:"→", reste:"Une population",
+   txt:"Il remontait autrefois la Seine, le Rhône, l'Elbe et le Guadalquivir. Il ne se reproduit plus naturellement que dans le bassin Gironde-Garonne-Dordogne. Les individus relâchés aujourd'hui ne pondront pas avant quinze ans.",
+   menaces:[["Barrages",90],["Captures accidentelles",72],["Extraction de granulats",66],["Qualité de l'eau",50]],
+   faits:[["Bassins actifs","1"],["Maturité sexuelle","12–18 ans"],["Tendance","Stable"],["Dernière évaluation","2022"]]},
+
+  {fr:"Ara de Spix", lat:"Cyanopsitta spixii", st:"EW", milieu:"Forêt sèche", region:"Bahia, Brésil", tend:"↑", reste:"0 à l'état sauvage",
+   txt:"Le dernier individu sauvage a disparu en 2000. L'espèce n'a survécu que chez des éleveurs privés. Depuis 2022, des oiseaux nés en captivité sont relâchés dans la caatinga brésilienne — l'espèce est en train de repasser un degré vers le haut.",
+   menaces:[["Capture pour le commerce",100],["Perte d'habitat",84],["Faible diversité génétique",70],["Prédateurs introduits",38]],
+   faits:[["Sauvages en 2000","1"],["En captivité","≈ 350"],["Relâchés depuis 2022","Oui"],["Dernière évaluation","2019"]]},
+
+  {fr:"Tortue luth", lat:"Dermochelys coriacea", st:"VU", milieu:"Marin", region:"Tous les océans", tend:"↓", reste:"Variable selon le bassin",
+   txt:"La plus grande tortue vivante, capable de plonger à mille mètres et de traverser un océan. Les populations du Pacifique s'effondrent pendant que celles de l'Atlantique se maintiennent : le statut mondial masque des situations régionales opposées.",
+   menaces:[["Captures accidentelles",88],["Prélèvement des œufs",74],["Plastiques",62],["Érosion des plages",58]],
+   faits:[["Profondeur max","1 280 m"],["Masse adulte","250–700 kg"],["Tendance","Contrastée"],["Dernière évaluation","2013"]]},
+
+  {fr:"Ours blanc", lat:"Ursus maritimus", st:"VU", milieu:"Banquise", region:"Arctique circumpolaire", tend:"↓", reste:"22 000 à 31 000",
+   txt:"Il chasse le phoque depuis la glace de mer. Chaque semaine gagnée par la débâcle printanière est une semaine de jeûne supplémentaire. Ce n'est pas la chasse qui menace l'espèce, c'est le calendrier de la banquise.",
+   menaces:[["Fonte de la banquise",100],["Contaminants",52],["Trafic maritime",40],["Conflits avec l'humain",34]],
+   faits:[["Sous-populations","19"],["Jeûne estival","jusqu'à 180 j"],["Tendance","En baisse"],["Dernière évaluation","2015"]]},
+
+  {fr:"Panda géant", lat:"Ailuropoda melanoleuca", st:"VU", milieu:"Forêt de bambous", region:"Sichuan, Chine", tend:"↑", reste:"≈ 1 860 sauvages",
+   txt:"Reclassé de « en danger » à « vulnérable » en 2016 après trente ans de reboisement et de création de réserves. La menace a changé de nature : elle n'est plus le braconnage mais la fragmentation, qui isole les groupes les uns des autres.",
+   menaces:[["Fragmentation de l'habitat",76],["Floraison du bambou",54],["Infrastructures",48],["Braconnage",14]],
+   faits:[["Réserves dédiées","67"],["Reclassé","2016"],["Tendance","En hausse"],["Dernière évaluation","2016"]]},
+
+  {fr:"Requin-baleine", lat:"Rhincodon typus", st:"EN", milieu:"Marin", region:"Eaux tropicales", tend:"↓", reste:"Inconnu",
+   txt:"Le plus gros poisson du monde filtre du plancton et ne représente aucun danger. Il met trente ans à devenir adulte, ce qui rend chaque individu perdu très difficile à remplacer. Beaucoup meurent par collision avec des navires.",
+   menaces:[["Collisions avec navires",82],["Captures accidentelles",76],["Commerce des ailerons",64],["Tourisme non encadré",36]],
+   faits:[["Longueur max","≈ 18 m"],["Maturité","≈ 30 ans"],["Tendance","En baisse"],["Dernière évaluation","2016"]]},
+
+  {fr:"Tigre", lat:"Panthera tigris", st:"EN", milieu:"Forêt et savane", region:"Asie", tend:"↑", reste:"≈ 4 500 sauvages",
+   txt:"Il occupe aujourd'hui moins de 7 % de son aire historique. Mais pour la première fois depuis un siècle, les effectifs remontent dans plusieurs pays, en Inde et au Népal notamment, grâce à des corridors et à des équipes anti-braconnage permanentes.",
+   menaces:[["Braconnage",86],["Perte de proies",74],["Fragmentation",70],["Conflits avec l'humain",58]],
+   faits:[["Aire historique restante","< 7 %"],["Sous-espèces vivantes","6"],["Tendance","En hausse"],["Dernière évaluation","2022"]]},
+
+  {fr:"Lémur catta", lat:"Lemur catta", st:"EN", milieu:"Forêt sèche", region:"Sud de Madagascar", tend:"↓", reste:"≈ 2 000 à 2 400",
+   txt:"L'espèce la plus reconnaissable de Madagascar est aussi l'une des plus mal en point. Les forêts-galeries du sud sont converties en pâturages et en charbon de bois, et les jeunes sont capturés pour le tourisme local.",
+   menaces:[["Déforestation",92],["Capture vivante",68],["Sécheresses",64],["Chasse",46]],
+   faits:[["Groupes suivis","< 40"],["Taille de groupe","6–30"],["Tendance","En baisse"],["Dernière évaluation","2020"]]},
+
+  {fr:"Loutre d'Europe", lat:"Lutra lutra", st:"NT", milieu:"Rivières", region:"Europe, Asie", tend:"↑", reste:"En recolonisation",
+   txt:"Quasi disparue de France dans les années 1970, victime du piégeage et des pesticides organochlorés. Depuis leur interdiction et l'amélioration des rivières, elle recolonise bassin par bassin. Sa première cause de mortalité aujourd'hui est la route.",
+   menaces:[["Collisions routières",72],["Qualité de l'eau",50],["Aménagement des berges",46],["Dérangement",28]],
+   faits:[["Départements occupés","En hausse"],["Interdiction du piégeage","1972"],["Tendance","En hausse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Bison d'Europe", lat:"Bison bonasus", st:"NT", milieu:"Forêt tempérée", region:"Pologne, Biélorussie, Caucase", tend:"↑", reste:"≈ 6 800",
+   txt:"Éteint à l'état sauvage en 1927. Toute l'espèce actuelle descend de douze animaux de zoo. Reclassé « quasi menacé » en 2020 : c'est l'un des retours les plus complets jamais documentés, et la démonstration qu'un degré peut se remonter.",
+   menaces:[["Diversité génétique",78],["Fragmentation des troupeaux",56],["Maladies du bétail",48],["Conflits agricoles",34]],
+   faits:[["Fondateurs","12"],["Éteint à l'état sauvage","1927"],["Reclassé NT","2020"],["Dernière évaluation","2020"]]},
+
+  {fr:"Thon rouge de l'Atlantique", lat:"Thunnus thynnus", st:"LC", milieu:"Marin", region:"Atlantique, Méditerranée", tend:"↑", reste:"Stock reconstitué",
+   txt:"Donné pour condamné au milieu des années 2000. Des quotas abaissés, contrôlés et réellement appliqués ont inversé la courbe en dix ans. Reclassé « préoccupation mineure » en 2021 — le cas le plus cité pour dire qu'une gestion contraignante fonctionne.",
+   menaces:[["Retour de la surpêche",44],["Pêche illégale",38],["Réchauffement des eaux",30],["Captures accidentelles",18]],
+   faits:[["Reclassé LC","2021"],["Quotas depuis","2007"],["Tendance","En hausse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Grand hamster d'Alsace", lat:"Cricetus cricetus", st:"CR", milieu:"Plaine agricole", region:"Alsace, Europe centrale", tend:"↓", reste:"Quelques centaines",
+   txt:"Commun au point d'être considéré comme un nuisible il y a soixante ans. La monoculture du maïs a supprimé la diversité de nourriture dont il dépend avant l'hibernation. Les femelles produisent désormais moitié moins de portées qu'autrefois.",
+   menaces:[["Monoculture",96],["Urbanisation",72],["Pesticides",58],["Fragmentation",54]],
+   faits:[["Effondrement en","60 ans"],["Portées par an","1–2"],["Tendance","En baisse"],["Dernière évaluation","2020"]]},
+
+  {fr:"Corail corne de cerf", lat:"Acropora cervicornis", st:"CR", milieu:"Récif corallien", region:"Caraïbes", tend:"↓", reste:"−97 % depuis 1980",
+   txt:"C'était l'espèce qui construisait l'ossature des récifs caribéens. Une maladie de la bande blanche l'a décimée dans les années 1980, et chaque épisode de blanchiment achève ce qui reste. Des fermes de bouturage tentent de replanter les fonds.",
+   menaces:[["Blanchiment",94],["Maladies",90],["Acidification",70],["Sédiments côtiers",56]],
+   faits:[["Perte depuis 1980","≈ 97 %"],["Croissance","10 cm / an"],["Tendance","En baisse"],["Dernière évaluation","2022"]]},
+
+  {fr:"Vautour moine", lat:"Aegypius monachus", st:"NT", milieu:"Montagne et steppe", region:"Espagne, Balkans, Asie", tend:"↑", reste:"≈ 20 000",
+   txt:"Disparu de France au XIXᵉ siècle, réintroduit dans les Grands Causses et le Verdon à partir de 1992. Le principal danger reste l'empoisonnement, volontaire ou non, par des appâts et des médicaments vétérinaires présents dans les carcasses.",
+   menaces:[["Empoisonnement",84],["Médicaments vétérinaires",66],["Collisions avec câbles",52],["Manque de carcasses",40]],
+   faits:[["Réintroduit en France","1992"],["Envergure","2,5–3 m"],["Tendance","En hausse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Saola", lat:"Pseudoryx nghetinhensis", st:"CR", milieu:"Forêt tropicale", region:"Cordillère annamitique", tend:"↓", reste:"Peut-être quelques dizaines",
+   txt:"Décrit par la science en 1992 seulement. Aucun biologiste n'en a jamais observé un à l'état sauvage ; les seules preuves récentes sont des clichés de pièges photographiques, le dernier datant de 2013. Il meurt surtout dans des collets posés pour d'autres animaux.",
+   menaces:[["Collets",98],["Perte d'habitat",66],["Chiens de chasse",52],["Population minuscule",90]],
+   faits:[["Décrit en","1992"],["Dernière photo","2013"],["En captivité","0"],["Dernière évaluation","2015"]]},
+
+  {fr:"Kakapo", lat:"Strigops habroptilus", st:"CR", milieu:"Forêt insulaire", region:"Nouvelle-Zélande", tend:"↑", reste:"≈ 250 individus",
+   txt:"Un perroquet nocturne, incapable de voler, qui ne se reproduit que les années où certains arbres fructifient massivement. Chaque oiseau vivant porte un émetteur et un nom. L'espèce n'existe plus que sur des îles débarrassées de leurs prédateurs.",
+   menaces:[["Prédateurs introduits",96],["Reproduction irrégulière",80],["Diversité génétique",74],["Maladies",42]],
+   faits:[["Individus suivis","100 %"],["Îles refuges","3"],["Tendance","En hausse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Pangolin de Chine", lat:"Manis pentadactyla", st:"CR", milieu:"Forêt et broussailles", region:"Asie de l'Est", tend:"↓", reste:"Inconnu",
+   txt:"Le mammifère le plus trafiqué au monde. Ses écailles sont faites de kératine, exactement comme un ongle humain, et n'ont aucune propriété médicinale démontrée. Les saisies douanières se comptent en dizaines de tonnes par an.",
+   menaces:[["Trafic international",100],["Chasse locale",78],["Perte d'habitat",60],["Faible fécondité",68]],
+   faits:[["Petits par an","1"],["Écailles","Kératine"],["Tendance","En chute"],["Dernière évaluation","2019"]]},
+
+  {fr:"Éléphant de forêt d'Afrique", lat:"Loxodonta cyclotis", st:"CR", milieu:"Forêt tropicale", region:"Bassin du Congo", tend:"↓", reste:"−86 % en 31 ans",
+   txt:"Reconnu comme espèce distincte en 2021 seulement, et immédiatement classé en danger critique. Il disperse les graines de très nombreux arbres : sa disparition modifie la composition de la forêt elle-même, bien au-delà de l'animal.",
+   menaces:[["Braconnage pour l'ivoire",94],["Perte d'habitat",78],["Routes forestières",62],["Conflits avec l'humain",50]],
+   faits:[["Perte en 31 ans","≈ 86 %"],["Espèce distincte depuis","2021"],["Tendance","En baisse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Phoque moine de Méditerranée", lat:"Monachus monachus", st:"EN", milieu:"Côtes rocheuses", region:"Méditerranée, Atlantique Est", tend:"↑", reste:"≈ 800 individus",
+   txt:"Le mammifère marin le plus rare d'Europe. La protection stricte des grottes de mise bas en Grèce, en Turquie et en Mauritanie a inversé la tendance. La population reste petite et concentrée sur très peu de sites.",
+   menaces:[["Dérangement humain",70],["Perte d'habitat côtier",64],["Captures accidentelles",58],["Pollution",44]],
+   faits:[["Longueur adulte","2,2–2,7 m"],["Sites de mise bas","< 20"],["Tendance","En hausse"],["Dernière évaluation","2023"],[38.55,26.35,"Péninsule de Karaburun"],[36.30,27.80,"Rhodes"]]}
+];
+
+/* ═════════════════════════════════════════════
+   CHAMP DE POINTS — un point = une espèce
+   ═════════════════════════════════════════════ */
+(function champ(){
+  const cv = document.getElementById('champ');
+  const ctx = cv.getContext('2d');
+  const lent = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TEINTES = [
+    ['#5BA85A',112],['#9EC24C',168],['#E5B23A',394],
+    ['#E07A2C',311],['#D4382C',184],['#AD9CC7',22],['#93A3A9',56]
+  ];
+  let pts = [], w = 0, h = 0, dpr = 1;
+
+  function semer(){
+    const r = cv.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = r.width; h = r.height;
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const dense = w < 640 ? .45 : w < 1100 ? .72 : 1;
+    pts = [];
+    TEINTES.forEach(([col,n])=>{
+      const k = Math.round(n * dense);
+      for(let i=0;i<k;i++){
+        pts.push({
+          x: Math.random()*w,
+          y: Math.random()*h,
+          r: .7 + Math.pow(Math.random(),2.4)*2.4,
+          a: .18 + Math.random()*.62,
+          v: .06 + Math.random()*.22,
+          ph: Math.random()*Math.PI*2,
+          am: .15 + Math.random()*.55,
+          col
+        });
+      }
+    });
+  }
+
+  function fond(){
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#072832');
+    g.addColorStop(.55,'#051D25');
+    g.addColorStop(1,'#04141A');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  }
+
+  function peindre(t){
+    fond();
+    for(const p of pts){
+      const dx = Math.sin(t*0.0004 + p.ph) * p.am * 14;
+      ctx.globalAlpha = p.a;
+      ctx.fillStyle = p.col;
+      ctx.beginPath();
+      ctx.arc(p.x + dx, p.y, p.r, 0, 6.2832);
+      ctx.fill();
+      if(p.r > 2.1){
+        ctx.globalAlpha = p.a * .16;
+        ctx.beginPath();
+        ctx.arc(p.x + dx, p.y, p.r * 3.4, 0, 6.2832);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function boucle(t){
+    for(const p of pts){
+      p.y -= p.v;
+      if(p.y < -6){ p.y = h + 6; p.x = Math.random()*w; }
+    }
+    peindre(t);
+    requestAnimationFrame(boucle);
+  }
+
+  semer();
+  if(lent){ peindre(0); } else { requestAnimationFrame(boucle); }
+
+  let tmr;
+  addEventListener('resize', ()=>{
+    clearTimeout(tmr);
+    tmr = setTimeout(()=>{ semer(); if(lent) peindre(0); }, 180);
+  });
+})();
+
+/* ═════════════════════════════════════════════
+   L'ÉCHELLE
+   ═════════════════════════════════════════════ */
+const grille = document.getElementById('echelle-grille');
+let degreActif = null;
+
+grille.innerHTML = DEGRES.map(d => `
+  <button class="degre" style="--c:${d.c}" data-code="${d.code}" aria-pressed="false">
+    <span class="code">${d.code}</span>
+    <span class="nom">${d.nom}</span>
+    <span class="n">${d.n}</span>
+  </button>`).join('');
+
+grille.addEventListener('click', e => {
+  const b = e.target.closest('.degre'); if(!b) return;
+  const code = b.dataset.code;
+  degreActif = (degreActif === code) ? null : code;
+  grille.querySelectorAll('.degre').forEach(x =>
+    x.setAttribute('aria-pressed', String(x.dataset.code === degreActif)));
+  rendre();
+  document.getElementById('registre').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* ═════════════════════════════════════════════
+   FILTRES PAR MILIEU
+   ═════════════════════════════════════════════ */
+const MILIEUX = ['Tous', ...new Set(ESPECES.map(e => e.milieu))];
+let milieuActif = 'Tous';
+const boiteFiltres = document.getElementById('filtres');
+
+boiteFiltres.innerHTML = MILIEUX.map(m =>
+  `<button class="puce" data-m="${m}" aria-pressed="${m==='Tous'}">${m}</button>`).join('');
+
+boiteFiltres.addEventListener('click', e => {
+  const b = e.target.closest('.puce'); if(!b) return;
+  milieuActif = b.dataset.m;
+  boiteFiltres.querySelectorAll('.puce').forEach(x =>
+    x.setAttribute('aria-pressed', String(x.dataset.m === milieuActif)));
+  rendre();
+});
+
+/* ═════════════════════════════════════════════
+   RECHERCHE + RENDU DU REGISTRE
+   ═════════════════════════════════════════════ */
+const champRecherche = document.getElementById('q');
+const liste = document.getElementById('liste');
+const compteur = document.getElementById('compteur');
+const ouverts = new Set();
+
+const sansAccent = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+function couleurDe(code){
+  return ({LC:'var(--lc)',NT:'var(--nt)',VU:'var(--vu)',EN:'var(--en)',
+           CR:'var(--cr)',EW:'var(--ew)',EX:'var(--ex)'})[code];
+}
+
+function filtrer(){
+  const q = sansAccent(champRecherche.value.trim());
+  return ESPECES.filter(e => {
+    if(degreActif && e.st !== degreActif) return false;
+    if(milieuActif !== 'Tous' && e.milieu !== milieuActif) return false;
+    if(!q) return true;
+    return sansAccent(`${e.fr} ${e.lat} ${e.milieu} ${e.region}`).includes(q);
+  });
+}
+
+function gabaritFiche(e){
+  const req = encodeURIComponent(e.lat);
+  const annee = (e.faits.find(f => f[0] === "Dernière évaluation") || [,"—"])[1];
+  return `
+  <div class="fiche">
+    <div>
+      <p class="soustitre">Ce qui se passe</p>
+      <p>${e.txt}</p>
+      <dl class="faits">
+        ${e.faits.map(([k,v])=>`<div class="fait"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+      </dl>
+    </div>
+    <div>
+      <p class="soustitre">Pressions identifiées</p>
+      <div class="menaces">
+        ${e.menaces.map(([k,v])=>`
+          <div class="menace" style="--g:${v>=80?'var(--cr)':v>=55?'var(--en)':'var(--vu)'}">
+            <span>${k}</span>
+            <span class="lvl">${v>=80?'Majeure':v>=55?'Forte':'Modérée'}</span>
+            <span class="jauge"><i style="width:${v}%"></i></span>
+          </div>`).join('')}
+      </div>
+      <div class="sources">
+        <p class="soustitre" style="margin-bottom:6px">Vérifier</p>
+        <p class="evalue">Dernière évaluation UICN&nbsp;: <b>${annee}</b>. Les catégories changent&nbsp;;
+        suivez les liens pour l'état du jour.</p>
+        <ul>
+          <li><a href="https://www.iucnredlist.org/search?query=${req}&searchType=species"
+                 target="_blank" rel="noopener">Fiche UICN</a></li>
+          <li><a href="https://www.gbif.org/species/search?q=${req}"
+                 target="_blank" rel="noopener">Observations GBIF</a></li>
+          <li><a href="https://fr.wikipedia.org/wiki/Special:Search?search=${req}"
+                 target="_blank" rel="noopener">Wikipédia</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>`;
+}
+
+function rendre(){
+  const res = filtrer();
+  const parts = [
+    `${res.length} espèce${res.length>1?'s':''} affichée${res.length>1?'s':''}`,
+    degreActif ? `degré ${degreActif}` : null,
+    milieuActif !== 'Tous' ? milieuActif.toLowerCase() : null
+  ].filter(Boolean);
+  compteur.textContent = parts.join(' — ');
+
+  if(!res.length){
+    liste.innerHTML = `<p class="vide"><b>Aucune espèce ne correspond.</b>
+      Retirez un filtre, ou cherchez un milieu comme « marin » ou « forêt ».</p>`;
+    return;
+  }
+
+  liste.innerHTML = res.map(e => {
+    const id = sansAccent(e.lat).replace(/\s+/g,'-');
+    const o = ouverts.has(id);
+    return `
+    <article class="ligne" data-id="${id}" data-ouvert="${o}">
+      <button class="ligne-tete" aria-expanded="${o}" style="--c:${couleurDe(e.st)}">
+        <span class="statut" style="--c:${couleurDe(e.st)}">${e.st}</span>
+        <span>
+          <span class="nom-fr">${e.fr}</span>
+          <span class="nom-lat bino">${e.lat}</span>
+        </span>
+        <span class="milieu">${e.milieu}<br><span style="opacity:.7">${e.region}</span></span>
+        <span class="tendance"><b>${e.reste}</b></span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M5 2.5L9.5 7L5 11.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      ${gabaritFiche(e)}
+    </article>`;
+  }).join('');
+}
+
+liste.addEventListener('click', e => {
+  const t = e.target.closest('.ligne-tete'); if(!t) return;
+  const l = t.closest('.ligne');
+  const id = l.dataset.id;
+  const o = !ouverts.has(id);
+  o ? ouverts.add(id) : ouverts.delete(id);
+  l.dataset.ouvert = String(o);
+  t.setAttribute('aria-expanded', String(o));
+});
+
+champRecherche.addEventListener('input', rendre);
+
+/* compteur du héros, cohérent avec l'échelle */
+document.getElementById('compte').textContent =
+  DEGRES.reduce((s,d)=>s+d.n,0).toLocaleString('fr-FR').replace(/\u202f|\u00a0/g,' ');
+
+rendre();
+</script>
+
+<script src="assets/js/leaflet.js"></script>
+<script>
+/* ╔═══════════════════════════════════════════════════════════════╗
+   ║  FOND DE CARTE — le seul réglage à connaître                   ║
+   ║                                                                ║
+   ║  'esri'  : fonctionne tel quel, sans clé, sans inscription.    ║
+   ║            Service ancien qu'Esri peut couper sans préavis.    ║
+   ║  'carto' : plus beau et maintenu, mais exige une clé gratuite  ║
+   ║            (carto.com/basemaps/apikey, 1 min, sans compte).    ║
+   ║            Collez-la dans cleCarto : le basculement est auto.  ║
+   ╚═══════════════════════════════════════════════════════════════╝ */
+const FOND = {
+  cleCarto: ""        // ← collez votre clé CARTO ici, ou laissez vide
+};
+/* ═════════════════════════════════════════════
+   CARTE MÉDITERRANÉE
+   Sites d'observation ou de reproduction connus.
+   Coordonnées approximatives — à remplacer par
+   les occurrences GBIF (API /v1/occurrence/search).
+   ═════════════════════════════════════════════ */
+const HEX = {LC:'#5BA85A',NT:'#9EC24C',VU:'#E5B23A',EN:'#E07A2C',
+             CR:'#D4382C',EW:'#AD9CC7',EX:'#93A3A9'};
+
+const MED = [
+  {fr:"Phoque moine de Méditerranée", lat:"Monachus monachus", st:"EN", note:"Grottes de mise bas",
+   pts:[[37.62,24.72,"Gyaros, Cyclades"],[39.15,23.87,"Alonissos, Sporades"],[35.57,27.16,"Karpathos"],
+        [38.67,26.75,"Foça, Turquie"],[35.50,23.60,"Ouest de la Crète"]]},
+
+  {fr:"Grande nacre", lat:"Pinna nobilis", st:"CR", note:"Décimée par un parasite depuis 2016",
+   pts:[[43.42,3.62,"Étang de Thau"],[42.57,8.75,"Baie de Calvi"],[37.72,-0.78,"Mar Menor"],
+        [35.20,26.10,"Baie de Sitia, Crète"],[45.30,13.35,"Istrie"],[40.60,27.50,"Golfe de Bandırma"],[40.72,14.05,"Golfe de Naples"],[43.60,15.90,"Archipel de Kornati"]]},
+
+  {fr:"Ange de mer commun", lat:"Squatina squatina", st:"CR", note:"Requin de fond, disparu de la plupart des côtes",
+   pts:[[39.55,2.65,"Îles Baléares"],[34.20,10.45,"Golfe de Gabès"],[40.30,25.20,"Égée septentrionale"],[40.45,27.10,"Marmara occidentale"],[31.50,30.50,"Plateau du delta du Nil"],[36.60,2.60,"Cap Ténès"]]},
+
+  {fr:"Anguille d'Europe", lat:"Anguilla anguilla", st:"CR", note:"Lagunes et deltas de remontée",
+   pts:[[43.50,4.45,"Camargue"],[40.72,0.72,"Delta de l'Èbre"],[45.42,12.32,"Lagune de Venise"],
+        [37.20,9.85,"Lac de Bizerte"],[39.35,9.05,"Étangs de Cagliari"]]},
+
+  {fr:"Puffin des Baléares", lat:"Puffinus mauretanicus", st:"CR", note:"Niche sur quelques îlots seulement",
+   pts:[[38.70,1.45,"Formentera"],[39.15,2.93,"Archipel de Cabrera"],[43.10,3.70,"Golfe du Lion"]]},
+
+  {fr:"Requin-marteau halicorne", lat:"Sphyrna lewini", st:"CR", note:"Presque plus signalé en Méditerranée",
+   pts:[[37.10,12.40,"Détroit de Sicile"],[36.20,-3.60,"Mer d'Alboran"]]},
+
+  {fr:"Corail rouge", lat:"Corallium rubrum", st:"EN", note:"Colonies profondes, croissance très lente",
+   pts:[[42.50,3.15,"Côte Vermeille"],[40.57,8.30,"Alghero, Sardaigne"],[38.20,15.60,"Détroit de Messine"],
+        [36.72,-4.10,"Côte de Malaga"],[36.90,4.50,"Côte de Kabylie"],[35.85,14.30,"Falaises de Malte"],[42.75,17.20,"Presqu'île de Pelješac"]]},
+
+  {fr:"Cachalot", lat:"Physeter macrocephalus", st:"EN", note:"Sous-population méditerranéenne isolée",
+   pts:[[36.30,21.60,"Fosse hellénique"],[43.40,8.20,"Mer Ligure"],[35.95,-5.60,"Détroit de Gibraltar"],[39.80,14.00,"Bassin tyrrhénien sud"],[32.60,33.90,"Bassin levantin"]]},
+
+  {fr:"Pocheteau blanc", lat:"Rostroraja alba", st:"EN", note:"Grande raie de fond sableux",
+   pts:[[33.90,10.10,"Golfe de Gabès"],[38.00,13.20,"Nord de la Sicile"],[31.80,30.20,"Large d'Alexandrie"]]},
+
+  {fr:"Rorqual commun", lat:"Balaenoptera physalus", st:"VU", note:"Zone d'alimentation estivale",
+   pts:[[42.80,8.60,"Sanctuaire Pelagos"],[42.60,4.50,"Golfe du Lion"],[38.40,16.30,"Mer Tyrrhénienne"],[40.30,13.50,"Large d'Ischia"],[37.40,12.00,"Banc de Skerki"]]},
+
+  {fr:"Tortue caouanne", lat:"Caretta caretta", st:"VU", note:"Plages de ponte",
+   pts:[[37.72,20.87,"Zakynthos"],[37.25,21.65,"Kyparissia"],[36.77,28.63,"Dalyan, Turquie"],
+        [34.92,32.33,"Cap Lara, Chypre"],[38.10,16.05,"Côte calabraise"],[36.05,14.25,"Malte"],[32.45,34.87,"Plages de Sharon"],[32.70,22.60,"Côte cyrénaïque"],[31.45,31.00,"Delta du Nil"],[40.02,15.28,"Côte du Cilento"],[42.80,17.60,"Canal de Neretva"]]},
+
+  {fr:"Mérou brun", lat:"Epinephelus marginatus", st:"VU", note:"Revient là où la pêche est interdite",
+   pts:[[43.00,6.40,"Port-Cros"],[42.37,8.55,"Réserve de Scandola"],[42.05,3.22,"Îles Medes"],
+        [36.95,11.20,"Îles Zembra"],[40.58,14.33,"Punta Campanella"],[33.08,35.10,"Rosh Hanikra"],[35.73,1.12,"Îles Habibas"]]},
+
+  {fr:"Grand dauphin", lat:"Tursiops truncatus", st:"VU", note:"Sous-population méditerranéenne",
+   pts:[[39.00,20.90,"Golfe d'Ambracie"],[45.05,13.60,"Côte istrienne"],[43.20,5.60,"Côte marseillaise"],[40.70,28.60,"Mer de Marmara"],[40.70,14.10,"Golfe de Naples"],[32.30,34.60,"Large de Netanya"],[31.60,28.80,"Large de Marsa Matruh"],[44.60,14.45,"Cres et Lošinj"]]},
+
+  {fr:"Goéland d'Audouin", lat:"Ichthyaetus audouinii", st:"LC", note:"Revenu de 1 000 à 20 000 couples",
+   pts:[[40.72,0.75,"Delta de l'Èbre"],[35.18,-2.43,"Îles Chafarinas"],[39.60,2.35,"Majorque"],[37.00,11.10,"Archipel de Zembra"]]},
+
+  {fr:"Posidonie", lat:"Posidonia oceanica", st:"LC", note:"Herbiers en recul mesuré chaque année",
+   pts:[[42.57,8.78,"Baie de Calvi"],[39.60,2.60,"Baléares"],[34.00,10.80,"Golfe de Gabès"],
+        [43.15,6.15,"Rade d'Hyères"],[40.73,13.90,"Herbiers d'Ischia"],[34.70,33.10,"Côte chypriote"],[36.85,3.90,"Baie de Bou Ismaïl"],[43.20,16.30,"Côte de Hvar"]]}
+];
+
+const VILLES = [
+  ["Marseille",43.30,5.37],["Nice",43.70,7.27],["Ajaccio",41.93,8.74],
+  ["Montpellier",43.61,3.88],["Perpignan",42.70,2.90],
+  ["Barcelone",41.39,2.17],["Valence (Espagne)",39.47,-0.38],["Palma",39.57,2.65],["Malaga",36.72,-4.42],
+  ["Gênes",44.41,8.93],["Rome",41.90,12.50],["Naples",40.85,14.27],["Palerme",38.12,13.36],["Venise",45.44,12.33],
+  ["La Valette",35.90,14.51],
+  ["Athènes",37.98,23.73],["Thessalonique",40.64,22.94],["Héraklion",35.34,25.13],
+  ["Istanbul",41.01,28.98],["Izmir",38.42,27.14],["Larnaca",34.92,33.63],
+  ["Tunis",36.80,10.18],["Alger",36.75,3.06],["Tanger",35.77,-5.80],
+  ["Tel Aviv",32.08,34.78],["Alexandrie",31.20,29.92],["Split",43.51,16.44]
+];
+
+const RAYONS = [100,250,500];
+
+(function initCarte(){
+  const hote = document.getElementById('lacarte');
+  if(typeof L === 'undefined'){
+    hote.innerHTML = '<p style="padding:28px;color:#8AA7AF;font-size:.86rem;max-width:42ch">' +
+      'La bibliothèque cartographique n\'a pas pu être chargée. Vérifiez votre connexion, ' +
+      'ou hébergez Leaflet en local si vous ouvrez ce fichier hors ligne.</p>';
+    return;
+  }
+
+  const carte = L.map(hote, {
+    center:[38.6,15.0], zoom:5, minZoom:4, maxZoom:11,
+    scrollWheelZoom:false, worldCopyJump:false, zoomControl:true
+  });
+  carte.on('click', ()=> carte.scrollWheelZoom.enable());
+  carte.on('mouseout', ()=> carte.scrollWheelZoom.disable());
+
+  const tuiles = FOND.cleCarto
+    ? L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${FOND.cleCarto}`, {
+        attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains:'abcd', maxZoom:19
+      })
+    : L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution:'Fond de carte Esri · HERE, Garmin, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom:16
+      });
+  tuiles.addTo(carte);
+
+  /* si le fond ne charge pas, on le dit au lieu de laisser un dégradé nu */
+  let echecs = 0, alerteFaite = false;
+  tuiles.on('tileerror', () => {
+    if(++echecs < 4 || alerteFaite) return;
+    alerteFaite = true;
+    const a = document.createElement('div');
+    a.className = 'alerte-tuiles';
+    a.innerHTML = '<b>Le fond de carte ne répond pas.</b>' +
+      'Les points et les distances restent exacts. Pour rétablir le fond, prenez une clé gratuite sur ' +
+      '<a href="https://carto.com/basemaps/apikey" target="_blank" rel="noopener">carto.com/basemaps/apikey</a> ' +
+      'et collez-la dans <code>FOND.cleCarto</code>.';
+    hote.parentNode.appendChild(a);
+  });
+
+  /* ── points ── */
+  const couche = L.layerGroup().addTo(carte);
+  const marqueurs = [];
+  MED.forEach((e, i) => {
+    e.pts.forEach(([la, ln, lieu]) => {
+      const m = L.circleMarker([la, ln], {
+        radius: e.st==='CR' ? 7.5 : e.st==='EN' ? 6.5 : 5.5,
+        color:'#04141A', weight:1.2,
+        fillColor:HEX[e.st], fillOpacity:.85
+      });
+      m.bindPopup(
+        `<b>${e.fr}</b><em>${e.lat}</em>` +
+        `<span class="lieu">${lieu} · ${e.note}</span>`
+      );
+      marqueurs.push({m, i, la, ln, lieu, d:Infinity});
+    });
+  });
+
+  /* ── regroupement : 87 points se chevauchent au dézoom ── */
+  const SEV = {CR:5, EN:4, VU:3, NT:2, LC:1};
+  let rayonCourant = 250;
+
+  function regrouper(){
+    couche.clearLayers();
+    const z = carte.getZoom();
+    if(z >= 7){ marqueurs.forEach(o => couche.addLayer(o.m)); return; }
+
+    const cases = new Map(), taille = 44;
+    marqueurs.forEach(o => {
+      const p = carte.project([o.la, o.ln], z);
+      const k = Math.floor(p.x/taille) + ':' + Math.floor(p.y/taille);
+      if(!cases.has(k)) cases.set(k, []);
+      cases.get(k).push(o);
+    });
+
+    cases.forEach(grp => {
+      if(grp.length === 1){ couche.addLayer(grp[0].m); return; }
+      const la = grp.reduce((s,o) => s + o.la, 0) / grp.length;
+      const ln = grp.reduce((s,o) => s + o.ln, 0) / grp.length;
+      const pire = grp.reduce((a,o) => SEV[MED[o.i].st] > SEV[MED[a.i].st] ? o : a);
+      const dedans = grp.some(o => o.d <= rayonCourant);
+      const taillePx = 22 + Math.min(grp.length, 12) * 1.7;
+      const espN = new Set(grp.map(o => o.i)).size;
+      couche.addLayer(
+        L.marker([la, ln], {
+          icon: L.divIcon({
+            className:'',
+            html:`<div class="agregat" style="width:${taillePx}px;height:${taillePx}px;` +
+                 `background:${HEX[MED[pire.i].st]};opacity:${dedans ? 1 : .3}">${grp.length}</div>`,
+            iconSize:[taillePx, taillePx], iconAnchor:[taillePx/2, taillePx/2]
+          }),
+          title: `${grp.length} sites · ${espN} espèce${espN>1?'s':''} — cliquez pour agrandir`
+        }).on('click', () => carte.flyTo([la, ln], Math.min(z + 3, 9), {duration:.6}))
+      );
+    });
+  }
+  carte.on('zoomend', regrouper);
+
+  /* ── origine ── */
+  let cercle = null, moi = null, rayon = 250;
+
+  const R = 6371;
+  const rad = d => d * Math.PI / 180;
+  function km(a, b, c, d){
+    const dLa = rad(c-a), dLn = rad(d-b);
+    const x = Math.sin(dLa/2)**2 + Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dLn/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x));
+  }
+
+  const selVille = document.getElementById('ville');
+  selVille.innerHTML = VILLES.map(([n],i)=>`<option value="${i}">${n}</option>`).join('');
+  selVille.value = 0;
+
+  const boiteRayons = document.getElementById('rayons');
+  boiteRayons.innerHTML = RAYONS.map(r =>
+    `<button type="button" data-r="${r}" aria-pressed="${r===rayon}">${r} km</button>`).join('');
+
+  const vNb = document.getElementById('v-nb');
+  const vTxt = document.getElementById('v-txt');
+  const vBar = document.getElementById('v-bar');
+  const vLg  = document.getElementById('v-lg');
+  const boiteProches = document.getElementById('proches');
+
+  let origine = {nom:VILLES[0][0], la:VILLES[0][1], ln:VILLES[0][2]};
+
+  function majuscule(){
+    /* distance de chaque espèce à l'origine */
+    const parEspece = new Map();
+    marqueurs.forEach(o => {
+      const d = km(origine.la, origine.ln, o.la, o.ln);
+      const cur = parEspece.get(o.i);
+      if(!cur || d < cur.d) parEspece.set(o.i, {d, o});
+      o.d = d;
+    });
+
+    /* effacer ce qui est hors rayon */
+    rayonCourant = rayon;
+    marqueurs.forEach(o => {
+      const dedans = o.d <= rayon;
+      o.m.setStyle({
+        fillOpacity: dedans ? .88 : .14,
+        weight: dedans ? 1.2 : 0,
+        color:'#04141A'
+      });
+    });
+    regrouper();
+
+    const dedans = [...parEspece.entries()]
+      .filter(([,v]) => v.d <= rayon)
+      .map(([i,v]) => ({e:MED[i], d:v.d, o:v.o}))
+      .sort((a,b) => a.d - b.d);
+
+    /* verdict */
+    const menacees = dedans.filter(x => ['VU','EN','CR','EW'].includes(x.e.st));
+    vNb.textContent = menacees.length;
+    vTxt.textContent = menacees.length
+      ? `espèce${menacees.length>1?'s':''} menacée${menacees.length>1?'s':''} dans un rayon de ${rayon} km autour de ${origine.nom}.`
+      : `espèce menacée recensée à moins de ${rayon} km de ${origine.nom}. Élargissez le rayon.`;
+
+    /* barre de répartition */
+    const ordre = ['CR','EN','VU','NT','LC'];
+    const cnt = {};
+    dedans.forEach(x => cnt[x.e.st] = (cnt[x.e.st]||0)+1);
+    const tot = dedans.length || 1;
+    vBar.innerHTML = ordre.filter(s=>cnt[s])
+      .map(s => `<i style="background:${HEX[s]};width:${cnt[s]/tot*100}%"></i>`).join('');
+    vLg.innerHTML = ordre.filter(s=>cnt[s])
+      .map(s => `<span><b style="background:${HEX[s]}"></b>${cnt[s]} ${s}</span>`).join('');
+
+    /* liste de proximité */
+    boiteProches.innerHTML = dedans.length
+      ? dedans.map(x => `
+          <button class="prox" type="button" data-la="${x.o.la}" data-ln="${x.o.ln}">
+            <span class="statut" style="--c:${HEX[x.e.st]}">${x.e.st}</span>
+            <span><b>${x.e.fr}</b><i>${x.e.lat}</i></span>
+            <span class="km">${Math.round(x.d)} km</span>
+          </button>`).join('')
+      : `<p class="prox-vide">Rien dans ce rayon. Essayez 500 km, ou une ville plus au sud du bassin.</p>`;
+
+    /* cercle + position */
+    if(cercle) carte.removeLayer(cercle);
+    if(moi) carte.removeLayer(moi);
+    cercle = L.circle([origine.la, origine.ln], {
+      radius: rayon*1000, color:'#2EC4B6', weight:1, opacity:.5,
+      fillColor:'#2EC4B6', fillOpacity:.05, interactive:false
+    }).addTo(carte);
+    moi = L.marker([origine.la, origine.ln], {
+      icon: L.divIcon({className:'', html:'<div class="marqueur-vous"></div>', iconSize:[14,14], iconAnchor:[7,7]}),
+      interactive:false
+    }).addTo(carte);
+
+    carte.flyToBounds(cercle.getBounds().pad(.15), {duration:.7});
+  }
+
+  selVille.addEventListener('change', () => {
+    const [n,la,ln] = VILLES[+selVille.value];
+    origine = {nom:n, la, ln};
+    majuscule();
+  });
+
+  boiteRayons.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    rayon = +b.dataset.r;
+    boiteRayons.querySelectorAll('button').forEach(x =>
+      x.setAttribute('aria-pressed', String(+x.dataset.r === rayon)));
+    majuscule();
+  });
+
+  boiteProches.addEventListener('click', e => {
+    const b = e.target.closest('.prox'); if(!b) return;
+    const la = +b.dataset.la, ln = +b.dataset.ln;
+    const cible = marqueurs.find(o => o.la === la && o.ln === ln);
+    carte.flyTo([la, ln], 8, {duration:.8});
+    if(cible) carte.once('moveend', () => {
+      if(carte.hasLayer(cible.m)) cible.m.openPopup();
+    });
+  });
+
+  document.getElementById('geoloc').addEventListener('click', () => {
+    if(!navigator.geolocation){
+      vTxt.textContent = "Votre navigateur ne transmet pas de position. Choisissez une ville.";
+      return;
+    }
+    vTxt.textContent = "Recherche de votre position…";
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        origine = {nom:"votre position", la:p.coords.latitude, ln:p.coords.longitude};
+        selVille.selectedIndex = -1;
+        majuscule();
+      },
+      () => { vTxt.textContent = "Position refusée ou indisponible. Choisissez une ville dans la liste."; },
+      {timeout:8000}
+    );
+  });
+
+  majuscule();
+})();
+</script>
+</body>
+</html>

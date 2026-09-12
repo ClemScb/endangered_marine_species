@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page introuvable — Le Registre</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04141A">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<style>
+@font-face{
+  font-family:"Archivo";
+  src:url("/assets/fonts/archivo-var.woff2") format("woff2-variations");
+  font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;
+  background:radial-gradient(120% 90% at 50% 0%,#0B3040,#051C24 55%,#04141A);
+  color:#EEF4F2;font-family:"Archivo",system-ui,sans-serif;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.boite{max-width:640px;margin-inline:auto;padding:clamp(24px,6vw,64px)}
+.code{
+  display:block;font-size:clamp(3.4rem,11vw,7rem);font-weight:700;line-height:.85;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  font-variation-settings:"wdth" 78;color:#93A3A9;
+}
+h1{
+  font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:400;letter-spacing:-.02em;
+  line-height:1.12;margin:.3em 0 0;font-variation-settings:"wdth" 92;max-width:18ch;
+}
+p{color:#8AA7AF;margin-top:1.1em;max-width:46ch}
+.liens{display:flex;flex-wrap:wrap;gap:11px;margin-top:2.2em}
+a.acte{
+  border:1px solid rgba(163,197,205,.34);padding:11px 20px;border-radius:2px;
+  font-size:.86rem;font-weight:500;text-decoration:none;color:inherit;transition:.18s;
+}
+a.acte:hover{background:rgba(46,196,182,.1);border-color:#2EC4B6}
+a.acte.plein{background:#EEF4F2;color:#04141A;border-color:#EEF4F2}
+a.acte.plein:hover{background:#2EC4B6;border-color:#2EC4B6}
+</style>
+</head>
+<body>
+  <div class="boite">
+    <span class="code">404</span>
+    <h1>Cette page n'existe pas.</h1>
+    <p>Contrairement aux espèces du registre, elle n'a jamais existé. L'adresse est
+    probablement mal recopiée.</p>
+    <div class="liens">
+      <a class="acte plein" href="/">Retour au registre</a>
+      <a class="acte" href="/#carte">Voir la carte</a>
+    </div>
+  </div>
+</body>
+</html>

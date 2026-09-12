@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# À REMPLACER par votre adresse publique
+Sitemap: https://VOTRE-COMPTE.github.io/le-registre/sitemap.xml
