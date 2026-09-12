@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # À REMPLACER par votre adresse publique
-Sitemap: https://clemscb.github.io/le-registre/sitemap.xml
+Sitemap: https://clemscb.github.io/endangered_marine_species/sitemap.xml

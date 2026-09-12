@@ -20,22 +20,19 @@ deux polices, une bibliothèque cartographique. Tout est dans le dépôt.
 Le fichier `.nojekyll` est présent et nécessaire : sans lui, Jekyll ignore
 certains fichiers et la mise en page peut casser.
 
-## 2. Les trois endroits à modifier
+## 2. Adresses du site
 
-Cherchez `VOTRE-COMPTE` dans le dépôt et remplacez par votre adresse réelle :
+Déjà renseignées dans `index.html`, `robots.txt` et `sitemap.xml` :
 
-| Fichier | Ligne | Pourquoi |
-|---|---|---|
-| `index.html` | `<link rel="canonical">`, `og:url`, `og:image`, `twitter:image` | sans URL absolue, aucun aperçu ne s'affiche au partage |
-| `robots.txt` | `Sitemap:` | indexation |
-| `sitemap.xml` | `<loc>` | indexation |
+- Site publié : <https://clemscb.github.io/endangered_marine_species/>
+- Dépôt : <https://github.com/ClemScb/endangered_marine_species>
 
-Et dans le pied de page d'`index.html`, le lien « Code source et signalement
-d'erreurs » pointe aussi vers `VOTRE-COMPTE`.
+Si vous renommez le dépôt ou branchez un nom de domaine, il faut les reprendre
+aux quatre endroits : `<link rel="canonical">`, `og:url`, `og:image` et
+`twitter:image` dans `index.html`, plus `robots.txt` et `sitemap.xml`.
 
 **Vérifiez l'aperçu de partage** une fois en ligne, sur
-`https://www.opengraph.xyz` ou dans le validateur de LinkedIn. C'est le canal
-principal d'un site comme celui-ci.
+<https://www.opengraph.xyz>. C'est le canal principal d'un site comme celui-ci.
 
 ## 3. Le fond de carte
 
