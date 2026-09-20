@@ -191,7 +191,8 @@ quel rayon, et quelles fiches d'espèces sont ouvertes.
 ├── index.html              tout le site : structure, styles, données, logique
 ├── 404.html
 ├── README.md
-├── LICENSE                 MIT pour le code, CC BY-SA 4.0 pour les textes
+├── LICENSE
+├── tests/                  bancs d'essai jsdom (voir tests/README.md)                 MIT pour le code, CC BY-SA 4.0 pour les textes
 ├── .nojekyll               indispensable sur GitHub Pages
 ├── robots.txt
 ├── sitemap.xml
@@ -209,7 +210,22 @@ quel rayon, et quelles fiches d'espèces sont ouvertes.
         └── og.png          bannière de partage 1200×630
 ```
 
-## 9. Ce qui reste à faire
+## 9. Tests
+
+Deux bancs d'essai chargent réellement `index.html` dans un DOM simulé et
+vérifient le registre, les portraits, l'ouverture d'une fiche depuis la carte
+et le comportement des bulles.
+
+```
+npm install jsdom
+node tests/page.test.js
+node tests/carte.test.js
+```
+
+Détail dans `tests/README.md`. Ils ne remplacent pas un passage en navigateur,
+mais ils rattrapent les régressions silencieuses.
+
+## 10. Ce qui reste à faire
 
 - Sourcer chaque chiffre individuellement, ou brancher l'API UICN.
 - Ouvrir le registre au-delà de la Méditerranée.

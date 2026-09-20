@@ -1603,22 +1603,37 @@ const RAYONS = [100,250,500];
         color:'#04141A', weight:1.2,
         fillColor:HEX[e.st], fillOpacity:.85
       });
+      /* Leaflet réexécute la fonction de contenu à chaque update().
+         On mémorise donc le nœud : update() renvoie le même, la photo
+         survit, et le bouton reste cliquable entre appui et relâchement. */
+      let bulle = null;
       m.bindPopup(() => {
-        const d = document.createElement('div');
+        if(bulle) return bulle;
+        bulle = document.createElement('div');
+
         const v = document.createElement('span');
         v.className = 'vignette';
-        d.appendChild(v);
-        d.insertAdjacentHTML('beforeend',
+        bulle.appendChild(v);
+
+        bulle.insertAdjacentHTML('beforeend',
           `<button class="popup-nom" type="button">${e.fr}</button>` +
           `<em>${e.lat}</em>` +
           `<span class="lieu">${lieu} · ${e.note}</span>` +
           `<button class="popup-voir" type="button">Ouvrir la fiche</button>`);
-        d.querySelectorAll('.popup-nom, .popup-voir').forEach(b =>
-          b.addEventListener('click', () => ouvrirFiche(e.lat)));
-        /* construire la bulle en DOM plutôt qu'en chaîne permet de lancer
-           la photo tout de suite, sans dépendre d'un événement d'ouverture */
-        poserPhoto(v, e.lat, () => { const pp = m.getPopup(); if(pp) pp.update(); });
-        return d;
+
+        bulle.querySelectorAll('.popup-nom, .popup-voir').forEach(b =>
+          b.addEventListener('click', ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            m.closePopup();
+            if(!ouvrirFiche(e.lat)) console.warn('Aucune fiche pour', e.lat);
+          }));
+
+        poserPhoto(v, e.lat, () => {
+          const pp = m.getPopup();
+          if(pp && pp.isOpen()) pp.update();
+        });
+        return bulle;
       }, {maxWidth:260, minWidth:220});
       marqueurs.push({m, i, la, ln, lieu, d:Infinity});
     });
