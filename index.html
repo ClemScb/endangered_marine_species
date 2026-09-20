@@ -415,6 +415,30 @@ a{color:inherit}
   border:1.5px solid rgba(4,20,26,.75);
   font-family:"Archivo",sans-serif;
 }
+.vignette{display:block}
+.vignette.chargee{margin-bottom:14px}
+.vignette img{
+  width:100%;height:150px;object-fit:cover;display:block;
+  border-radius:2px;background:var(--fond-2);
+}
+.vignette a{
+  display:block;margin-top:5px;font-size:.66rem;color:var(--brume);
+  text-decoration:none;letter-spacing:.01em;
+}
+.vignette a:hover{color:var(--vif);text-decoration:underline;text-underline-offset:2px}
+.fiche .vignette img{height:clamp(160px,22vw,230px)}
+.leaflet-popup-content .vignette img{height:130px}
+.leaflet-popup-content .vignette.chargee{margin-bottom:11px}
+
+.indice-zoom{
+  position:absolute;inset:0;z-index:450;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(4,20,26,.55);
+  color:var(--craie);font-size:var(--t-s);font-weight:500;letter-spacing:.01em;
+  opacity:0;transition:opacity .2s ease;
+}
+.indice-zoom.visible{opacity:1}
+
 .alerte-tuiles{
   position:absolute;left:14px;right:14px;bottom:14px;z-index:500;
   background:rgba(10,34,43,.95);border:1px solid var(--filet-fort);border-radius:2px;
@@ -636,8 +660,10 @@ a{color:inherit}
     <p>
       Sources&nbsp;: <a href="https://www.iucnredlist.org" target="_blank" rel="noopener">Liste rouge UICN</a>
       pour les statuts, <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a> pour les
-      observations. Les points de la carte sont des sites connus, localisés approximativement&nbsp;;
-      certaines coordonnées sont volontairement imprécises pour les espèces braconnées.
+      observations, <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>
+      pour les photos — chargées seulement quand vous ouvrez une espèce. Les points de la carte sont des
+      sites connus, localisés approximativement&nbsp;; certaines coordonnées sont volontairement
+      imprécises pour les espèces braconnées.
     </p>
     <p>
       Code sous licence MIT, textes sous
@@ -936,12 +962,70 @@ function filtrer(){
   });
 }
 
+/* ═════════════════════════════════════════════
+   VIGNETTES
+   La photo est demandée à Wikipédia au moment où
+   l'on ouvre une espèce, jamais au chargement de
+   la page. Rien n'est embarqué dans le dépôt :
+   l'image vient de Wikimedia Commons, avec sa
+   licence et son crédit.
+   ═════════════════════════════════════════════ */
+const cachePhoto = new Map();
+
+function chercherPhoto(binome){
+  if(cachePhoto.has(binome)) return cachePhoto.get(binome);
+  const p = (async () => {
+    for(const wiki of ['fr','en']){
+      try{
+        const r = await fetch(
+          `https://${wiki}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(binome)}?redirect=true`
+        );
+        if(!r.ok) continue;
+        const d = await r.json();
+        const src = d.thumbnail && d.thumbnail.source;
+        if(src) return {
+          src: src.replace(/\/\d+px-/, '/640px-'),
+          page: (d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page) || ''
+        };
+      }catch(e){ /* hors ligne ou bloqué : on passe */ }
+    }
+    return null;
+  })();
+  cachePhoto.set(binome, p);
+  return p;
+}
+
+function poserPhoto(hote, binome, apres){
+  if(!hote || hote.dataset.fait) return;
+  hote.dataset.fait = '1';
+  chercherPhoto(binome).then(ph => {
+    if(!ph){ hote.remove(); if(apres) apres(); return; }
+    const img = new Image();
+    img.src = ph.src;
+    img.alt = binome;
+    img.loading = 'lazy';
+    img.addEventListener('load', () => {
+      hote.appendChild(img);
+      if(ph.page){
+        const a = document.createElement('a');
+        a.href = ph.page; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = 'Photo : Wikimedia Commons';
+        hote.appendChild(a);
+      }
+      hote.classList.add('chargee');
+      if(apres) apres();
+    }, {once:true});
+    img.addEventListener('error', () => { hote.remove(); if(apres) apres(); }, {once:true});
+  });
+}
+
 function gabaritFiche(e){
   const req = encodeURIComponent(e.lat);
   const annee = (e.faits.find(f => f[0] === "Dernière évaluation") || [,"—"])[1];
   return `
   <div class="fiche">
     <div>
+      <span class="vignette" data-taxon="${e.lat}"></span>
       <p class="soustitre">Ce qui se passe</p>
       <p>${e.txt}</p>
       <dl class="faits">
@@ -1020,6 +1104,10 @@ liste.addEventListener('click', e => {
   o ? ouverts.add(id) : ouverts.delete(id);
   l.dataset.ouvert = String(o);
   t.setAttribute('aria-expanded', String(o));
+  if(o){
+    const v = l.querySelector('.vignette');
+    if(v) poserPhoto(v, v.dataset.taxon);
+  }
 });
 
 champRecherche.addEventListener('input', rendre);
@@ -1133,10 +1221,51 @@ const RAYONS = [100,250,500];
 
   const carte = L.map(hote, {
     center:[38.6,15.0], zoom:5, minZoom:4, maxZoom:11,
-    scrollWheelZoom:false, worldCopyJump:false, zoomControl:true
+    scrollWheelZoom:false, worldCopyJump:false, zoomControl:true,
+    zoomSnap:0.25, zoomDelta:0.5
   });
-  carte.on('click', ()=> carte.scrollWheelZoom.enable());
-  carte.on('mouseout', ()=> carte.scrollWheelZoom.disable());
+
+  /* ── défilement ──
+     La page glisse toujours librement sous le curseur. Le zoom demande
+     ⌘/Ctrl + molette — ce que le pincement à deux doigts d'un trackpad
+     envoie nativement, donc le pincement fonctionne sans rien faire.
+     Au doigt, il faut deux doigts pour déplacer la carte, sinon la page
+     se retrouve prisonnière dès qu'on la traverse. */
+  const indice = document.createElement('div');
+  indice.className = 'indice-zoom';
+  hote.parentNode.appendChild(indice);
+  let indiceT = null;
+
+  function montrerIndice(txt){
+    indice.textContent = txt;
+    indice.classList.add('visible');
+    clearTimeout(indiceT);
+    indiceT = setTimeout(() => indice.classList.remove('visible'), 1400);
+  }
+
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+
+  hote.addEventListener('wheel', e => {
+    if(e.ctrlKey || e.metaKey){
+      e.preventDefault();
+      const ll = carte.containerPointToLatLng(carte.mouseEventToContainerPoint(e));
+      const z  = carte.getZoom() - e.deltaY * 0.012;
+      carte.setZoomAround(ll, Math.max(4, Math.min(11, z)), {animate:false});
+    } else {
+      montrerIndice(mac ? '⌘ + défilement pour zoomer' : 'Ctrl + défilement pour zoomer');
+    }
+  }, {passive:false});
+
+  if(L.Browser.touch && L.Browser.mobile){
+    carte.dragging.disable();
+    hote.addEventListener('touchstart', e => {
+      if(e.touches.length > 1) carte.dragging.enable();
+      else montrerIndice('Deux doigts pour déplacer la carte');
+    }, {passive:true});
+    hote.addEventListener('touchend', () => {
+      if(carte.dragging.enabled()) setTimeout(() => carte.dragging.disable(), 80);
+    }, {passive:true});
+  }
 
   const tuiles = FOND.cleCarto
     ? L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${FOND.cleCarto}`, {
@@ -1174,8 +1303,10 @@ const RAYONS = [100,250,500];
         fillColor:HEX[e.st], fillOpacity:.85
       });
       m.bindPopup(
+        `<span class="vignette" data-taxon="${e.lat}"></span>` +
         `<b>${e.fr}</b><em>${e.lat}</em>` +
-        `<span class="lieu">${lieu} · ${e.note}</span>`
+        `<span class="lieu">${lieu} · ${e.note}</span>`,
+        {maxWidth:260, minWidth:220}
       );
       marqueurs.push({m, i, la, ln, lieu, d:Infinity});
     });
@@ -1219,7 +1350,18 @@ const RAYONS = [100,250,500];
       );
     });
   }
-  carte.on('zoomend', regrouper);
+  let rafRegroupe = null;
+  function regrouperBientot(){
+    if(rafRegroupe) return;
+    rafRegroupe = requestAnimationFrame(() => { rafRegroupe = null; regrouper(); });
+  }
+  carte.on('zoomend', regrouperBientot);
+
+  /* la photo n'arrive qu'à l'ouverture : il faut replacer la bulle ensuite */
+  carte.on('popupopen', ev => {
+    const el = ev.popup.getElement().querySelector('.vignette');
+    if(el) poserPhoto(el, el.dataset.taxon, () => ev.popup.update());
+  });
 
   /* ── origine ── */
   let cercle = null, moi = null, rayon = 250;

@@ -77,6 +77,31 @@ Tout est dans `index.html`, en clair, sans base de données.
 - **`VILLES`** — les points de départ proposés. Format : `["Nom", lat, lon]`.
 - **`DEGRES`** — les effectifs affichés sur l'échelle UICN.
 
+### Les photos
+
+Aucune image d'espèce n'est stockée dans le dépôt. La fonction `chercherPhoto()`
+interroge l'API de Wikipédia avec le **binôme latin**, en français d'abord puis
+en anglais, et récupère la vignette de Wikimedia Commons avec un lien de crédit.
+
+Conséquence pratique : pour qu'une espèce ait une photo, il suffit que son
+binôme corresponde à un article Wikipédia. Si vous ajoutez une espèce et que
+rien n'apparaît, vérifiez l'orthographe du binôme — c'est presque toujours ça.
+L'emplacement disparaît proprement quand il n'y a pas d'image, et la mise en
+page reste intacte.
+
+**Conditions d'usage.** L'API est ouverte, sans clé, plafonnée à 200 requêtes
+par seconde — sans rapport avec ce que consommera ce site, puisqu'une photo
+n'est demandée qu'à l'ouverture d'une fiche et qu'elle est ensuite gardée en
+mémoire pour la session. Les contenus sont sous CC BY-SA : le crédit affiché
+sous chaque photo n'est pas décoratif, il est exigé par la licence. Ne le
+retirez pas.
+
+Si le site prend du trafic sérieux, Wikimedia demande que les clients
+s'identifient via un en-tête `Api-User-Agent`. Il n'est pas envoyé ici,
+volontairement : un en-tête personnalisé déclenche une requête de contrôle
+CORS préalable, et si elle échoue, plus aucune photo ne s'affiche. La fiabilité
+a été privilégiée. À reconsidérer le jour où le volume le justifie.
+
 ### Passer à des données réelles
 
 Les statuts et effectifs livrés sont des **instantanés d'illustration**. Les
@@ -109,10 +134,15 @@ et n'envoie rien nulle part.
 - **Géolocalisation.** Le bouton « utiliser ma position » appelle l'API du
   navigateur. La position reste dans la page, sert uniquement au calcul de
   distances, et n'est jamais transmise. C'est écrit sous le bouton.
-- **Tuiles de carte.** Seule exception : afficher le fond implique des requêtes
-  vers Esri ou CARTO, qui voient l'adresse IP du visiteur. Inévitable sans
-  auto-héberger les tuiles. À mentionner si vous ajoutez une page de
-  confidentialité.
+- **Deux exceptions**, toutes deux déclarées dans le pied de page :
+  - les **tuiles de carte** viennent d'Esri ou de CARTO, qui voient donc
+    l'adresse IP du visiteur. Inévitable sans auto-héberger les tuiles.
+  - les **photos d'espèces** sont demandées à l'API de Wikipédia
+    (`/api/rest_v1/page/summary/`) au moment où l'on ouvre une fiche ou un
+    point de la carte — jamais au chargement de la page. Rien n'est stocké,
+    aucun cookie n'est déposé, et le site fonctionne sans elles.
+
+  À mentionner si vous ajoutez une page de confidentialité.
 
 La géolocalisation exige HTTPS. GitHub Pages est en HTTPS : elle fonctionne en
 ligne, mais pas si vous ouvrez le fichier en `file://` depuis votre disque.
@@ -176,6 +206,8 @@ quel rayon, et quelles fiches d'espèces sont ouvertes.
 - Sourcer chaque chiffre individuellement, ou brancher l'API UICN.
 - Ouvrir le registre au-delà de la Méditerranée.
 - Rendre le champ de points du héros cliquable : chaque point mène à son espèce.
+- Mettre les photos en cache local pour les espèces les plus consultées, si le
+  trafic rend les appels à Wikipédia trop nombreux.
 - Traduire, au minimum en anglais.
 
 ---
