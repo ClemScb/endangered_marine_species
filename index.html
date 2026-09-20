@@ -353,15 +353,44 @@ a{color:inherit}
 
 .proches{display:flex;flex-direction:column;max-height:290px;overflow:auto;margin:0 -20px -22px;border-top:1px solid var(--filet)}
 .prox{
-  display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:11px;align-items:center;
-  padding:11px 20px;text-align:left;border-bottom:1px solid var(--filet);transition:background .15s;
+  display:grid;grid-template-columns:minmax(0,1fr) 36px;
+  align-items:stretch;border-bottom:1px solid var(--filet);transition:background .15s;
 }
 .prox:hover{background:rgba(163,197,205,.06)}
+.prox-aller{
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:11px;align-items:center;
+  padding:11px 6px 11px 20px;text-align:left;min-width:0;
+}
+.prox-fiche{
+  display:flex;align-items:center;justify-content:center;
+  color:var(--brume);border-left:1px solid var(--filet);transition:.15s;
+}
+.prox-fiche:hover{color:var(--vif);background:rgba(46,196,182,.1)}
 .prox b{display:block;font-size:var(--t-s);font-weight:500;line-height:1.25}
 .prox i{display:block;font-family:"Newsreader",Georgia,serif;font-size:.76rem;color:var(--brume);margin-top:1px}
-.prox .km{font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums;white-space:nowrap}
+.prox .km{font-size:var(--t-xs);color:var(--brume);font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:8px}
 .prox .statut{font-size:.64rem;min-width:32px;padding:2px 5px}
 .prox-vide{padding:22px 20px;font-size:var(--t-xs);color:var(--brume);line-height:1.55}
+
+/* actions dans la bulle de la carte */
+.leaflet-popup-content .popup-nom{
+  display:block;text-align:left;padding:0;font-size:.98rem;font-weight:500;
+  color:var(--craie);line-height:1.25;
+}
+.leaflet-popup-content .popup-nom:hover{color:var(--vif);text-decoration:underline;text-underline-offset:3px}
+.leaflet-popup-content .popup-voir{
+  display:block;width:100%;margin-top:11px;padding:7px 0;
+  border:1px solid var(--filet-fort);border-radius:2px;
+  font-size:.74rem;font-weight:500;color:var(--craie);transition:.16s;
+}
+.leaflet-popup-content .popup-voir:hover{background:rgba(46,196,182,.12);border-color:var(--vif)}
+
+/* la ligne visée signale son arrivée */
+.ligne.surligne{animation:vise 1.8s ease-out}
+@keyframes vise{
+  0%,22%{background:rgba(46,196,182,.16)}
+  100%{background:transparent}
+}
 
 .bloc-depart .champ-lab{margin-bottom:0}
 
@@ -710,7 +739,7 @@ const ESPECES = [
   {fr:"Anguille d'Europe", lat:"Anguilla anguilla", st:"CR", milieu:"Eau douce et marin", region:"Europe, Afrique du Nord", tend:"↓", reste:"−95 % de civelles",
    txt:"Elle naît dans la mer des Sargasses, traverse l'Atlantique, remonte les fleuves européens, puis repart pondre là où elle est née. Chaque barrage, chaque turbine, chaque seuil coupe ce trajet. Le recrutement de jeunes civelles s'est effondré depuis 1980.",
    menaces:[["Obstacles aux migrations",96],["Surpêche des civelles",90],["Trafic illégal",78],["Parasites",56]],
-   faits:[["Recrutement vs 1980","≈ 5 %"],["Trajet de ponte","6 000 km"],["Tendance","En chute"],["Dernière évaluation","2020"],[41.05,29.60,"Bosphore"],[31.30,32.00,"Lac Manzala"],[37.55,21.30,"Lagune de Kotychi"],[43.05,17.45,"Delta de la Neretva"]]},
+   faits:[["Recrutement vs 1980","≈ 5 %"],["Trajet de ponte","6 000 km"],["Tendance","En chute"],["Dernière évaluation","2020"]]},
 
   {fr:"Axolotl", lat:"Ambystoma mexicanum", st:"CR", milieu:"Eau douce", region:"Xochimilco, Mexique", tend:"↓", reste:"Quelques dizaines",
    txt:"Des centaines de milliers d'axolotls vivent dans les aquariums et les laboratoires du monde entier. À l'état sauvage, il ne subsiste que dans les canaux de Xochimilco, aux portes de Mexico, où l'eau se charge d'ammoniac et de poissons introduits.",
@@ -810,7 +839,73 @@ const ESPECES = [
   {fr:"Phoque moine de Méditerranée", lat:"Monachus monachus", st:"EN", milieu:"Côtes rocheuses", region:"Méditerranée, Atlantique Est", tend:"↑", reste:"≈ 800 individus",
    txt:"Le mammifère marin le plus rare d'Europe. La protection stricte des grottes de mise bas en Grèce, en Turquie et en Mauritanie a inversé la tendance. La population reste petite et concentrée sur très peu de sites.",
    menaces:[["Dérangement humain",70],["Perte d'habitat côtier",64],["Captures accidentelles",58],["Pollution",44]],
-   faits:[["Longueur adulte","2,2–2,7 m"],["Sites de mise bas","< 20"],["Tendance","En hausse"],["Dernière évaluation","2023"],[38.55,26.35,"Péninsule de Karaburun"],[36.30,27.80,"Rhodes"]]}
+   faits:[["Longueur adulte","2,2–2,7 m"],["Sites de mise bas","< 20"],["Tendance","En hausse"],["Dernière évaluation","2023"]]},
+
+  {fr:"Grande nacre", lat:"Pinna nobilis", st:"CR", milieu:"Marin", region:"Toute la Méditerranée", tend:"↓", reste:"Mortalité > 99 %",
+   txt:"Le plus grand coquillage de Méditerranée, jusqu'à un mètre de haut, planté à la verticale dans les herbiers. En 2016, un parasite apparu au large de l'Espagne a remonté tout le bassin en quatre ans et tué la quasi-totalité des populations. Quelques foyers survivants, peut-être résistants, sont désormais suivis individu par individu.",
+   menaces:[["Parasite Haplosporidium",100],["Ancrage des bateaux",62],["Recul des herbiers",58],["Prélèvement",24]],
+   faits:[["Hauteur adulte","jusqu'à 1 m"],["Mortalité observée","> 99 %"],["Tendance","En chute"],["Dernière évaluation","2019"]]},
+
+  {fr:"Ange de mer commun", lat:"Squatina squatina", st:"CR", milieu:"Marin", region:"Méditerranée, Atlantique Est", tend:"↓", reste:"Trois refuges connus",
+   txt:"Un requin plat qui chasse enfoui dans le sable, immobile. Cette stratégie le rend invisible à ses proies et sans défense face au chalut de fond, qui racle exactement son habitat. Il a disparu de presque toute la Méditerranée septentrionale ; les dernières populations tiennent aux Baléares, dans le golfe de Gabès et aux Canaries.",
+   menaces:[["Chalutage de fond",96],["Captures accidentelles",82],["Faible fécondité",64],["Dégradation des fonds",52]],
+   faits:[["Portée","7 à 25 petits"],["Refuges connus","3"],["Tendance","En chute"],["Dernière évaluation","2019"]]},
+
+  {fr:"Puffin des Baléares", lat:"Puffinus mauretanicus", st:"CR", milieu:"Côtes rocheuses", region:"Baléares, golfe du Lion", tend:"↓", reste:"≈ 3 000 couples",
+   txt:"L'oiseau marin le plus menacé d'Europe. Il ne niche que sur quelques îlots des Baléares, dans des cavités où les chats et les rats introduits atteignent les poussins. Il pêche jusque dans le golfe du Lion et se prend régulièrement aux hameçons des palangres.",
+   menaces:[["Prédateurs introduits",92],["Captures aux palangres",78],["Éoliennes en mer",44],["Dérangement des colonies",40]],
+   faits:[["Couples nicheurs","≈ 3 000"],["Îlots de nidification","< 20"],["Tendance","En baisse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Requin-marteau halicorne", lat:"Sphyrna lewini", st:"CR", milieu:"Marin", region:"Eaux tropicales et tempérées", tend:"↓", reste:"−80 % en trois générations",
+   txt:"Les jeunes se regroupent en bancs dans quelques baies-nurseries, ce qui les rend faciles à capturer en masse. Leurs ailerons comptent parmi les plus recherchés du commerce, et le corps est souvent rejeté à la mer. En Méditerranée, les signalements sont devenus presque nuls.",
+   menaces:[["Commerce des ailerons",98],["Captures accidentelles",84],["Nurseries côtières exposées",70],["Maturité tardive",62]],
+   faits:[["Baisse estimée","≈ 80 %"],["Maturité sexuelle","10 à 15 ans"],["Tendance","En chute"],["Dernière évaluation","2018"]]},
+
+  {fr:"Corail rouge", lat:"Corallium rubrum", st:"EN", milieu:"Récif corallien", region:"Méditerranée occidentale", tend:"→", reste:"Colonies rajeunies",
+   txt:"Il pousse d'environ un centimètre par an sur les parois sombres, entre trente et deux cents mètres de fond. Pêché depuis l'Antiquité pour la bijouterie, il n'a plus le temps d'atteindre sa taille adulte entre deux récoltes : les colonies restantes sont jeunes, petites, et se reproduisent mal.",
+   menaces:[["Récolte pour la bijouterie",88],["Croissance très lente",76],["Réchauffement des eaux",58],["Récolte illégale",54]],
+   faits:[["Croissance","≈ 1 cm par an"],["Profondeur","30 à 200 m"],["Tendance","Stable à bas niveau"],["Dernière évaluation","2015"]]},
+
+  {fr:"Cachalot", lat:"Physeter macrocephalus", st:"EN", milieu:"Marin", region:"Méditerranée", tend:"↓", reste:"Quelques centaines",
+   txt:"La population méditerranéenne ne se mélange pas avec celle de l'Atlantique : c'est un stock isolé de quelques centaines d'individus. Ils plongent au-delà de mille mètres le long des fosses, se prennent dans les filets dérivants, et les collisions avec les ferries rapides font le reste.",
+   menaces:[["Filets dérivants",86],["Collisions avec navires",74],["Bruit sous-marin",62],["Pollution chimique",50]],
+   faits:[["Plongée maximale","> 1 000 m"],["Population isolée","Oui"],["Tendance","En baisse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Pocheteau blanc", lat:"Rostroraja alba", st:"EN", milieu:"Marin", region:"Golfe de Gabès, Méditerranée", tend:"↓", reste:"Quelques noyaux au sud",
+   txt:"Une raie de deux mètres d'envergure qui ne dépose qu'une poignée d'œufs par an dans le sable. Cette fécondité minuscule ne résiste pas au chalutage : elle a disparu de presque toute la Méditerranée du Nord et ne se maintient qu'au sud, principalement dans le golfe de Gabès.",
+   menaces:[["Chalutage de fond",94],["Faible fécondité",80],["Captures accidentelles",72],["Dégradation des fonds",46]],
+   faits:[["Envergure","≈ 2 m"],["Œufs par an","Quelques dizaines"],["Tendance","En baisse"],["Dernière évaluation","2015"]]},
+
+  {fr:"Rorqual commun", lat:"Balaenoptera physalus", st:"VU", milieu:"Marin", region:"Sanctuaire Pelagos, Méditerranée", tend:"→", reste:"≈ 1 800 en Méditerranée",
+   txt:"Le deuxième plus grand animal de la planète passe l'été à filtrer le krill entre la Corse, la Ligurie et le golfe du Lion. Cette zone est aussi l'un des couloirs maritimes les plus fréquentés du monde : la collision avec un navire rapide est la première cause de mortalité documentée.",
+   menaces:[["Collisions avec navires",84],["Bruit sous-marin",70],["Captures accidentelles",46],["Réchauffement des eaux",44]],
+   faits:[["Longueur adulte","18 à 22 m"],["Zone d'été","Sanctuaire Pelagos"],["Tendance","Stable"],["Dernière évaluation","2021"]]},
+
+  {fr:"Tortue caouanne", lat:"Caretta caretta", st:"VU", milieu:"Marin", region:"Méditerranée, tous océans", tend:"↑", reste:"Pontes en hausse en Grèce",
+   txt:"Elle revient pondre sur la plage où elle est née, quinze à trente ans plus tard. Le sexe des petits dépend de la température du sable : au-delà d'un certain seuil, il ne naît pratiquement plus que des femelles. Les plages grecques et turques protégées voient leurs pontes augmenter d'année en année.",
+   menaces:[["Captures accidentelles",82],["Aménagement des plages",70],["Température du sable",66],["Plastiques",54]],
+   faits:[["Retour au lieu de naissance","15 à 30 ans"],["Sexe déterminé par","La température"],["Tendance","En hausse localement"],["Dernière évaluation","2017"]]},
+
+  {fr:"Mérou brun", lat:"Epinephelus marginatus", st:"VU", milieu:"Marin", region:"Méditerranée, Atlantique Est", tend:"↑", reste:"Retour dans les réserves",
+   txt:"Il naît femelle et devient mâle vers dix ans. Pêcher les gros individus revient donc à retirer les mâles de la population, ce qui la désorganise durablement. Là où la chasse sous-marine est interdite depuis longtemps, il est redevenu commun et se laisse approcher.",
+   menaces:[["Chasse sous-marine",78],["Pêche commerciale",66],["Changement de sexe tardif",60],["Perte d'habitat rocheux",38]],
+   faits:[["Changement de sexe","≈ 10 ans"],["Longévité","> 50 ans"],["Tendance","En hausse"],["Dernière évaluation","2018"]]},
+
+  {fr:"Grand dauphin", lat:"Tursiops truncatus", st:"VU", milieu:"Marin", region:"Méditerranée", tend:"↓", reste:"≈ 10 000 en Méditerranée",
+   txt:"L'espèce se porte bien à l'échelle mondiale, mais la sous-population méditerranéenne est évaluée à part et classée vulnérable. Elle a perdu l'essentiel de ses effectifs au XXᵉ siècle, d'abord par campagnes d'élimination organisées, puis par raréfaction des poissons dont elle dépend.",
+   menaces:[["Raréfaction des proies",76],["Captures accidentelles",68],["Pollution chimique",64],["Bruit sous-marin",50]],
+   faits:[["Statut méditerranéen","Vulnérable"],["Taille des groupes","5 à 30"],["Tendance","En baisse"],["Dernière évaluation","2021"]]},
+
+  {fr:"Goéland d'Audouin", lat:"Ichthyaetus audouinii", st:"LC", milieu:"Côtes rocheuses", region:"Delta de l'Èbre, Méditerranée", tend:"→", reste:"≈ 20 000 couples",
+   txt:"Il ne restait qu'un millier de couples dans les années 1960. La protection des colonies l'a fait remonter jusqu'à vingt mille, au point d'être reclassé « préoccupation mineure ». Mais près de la moitié de l'espèce niche sur un seul site : c'est là que se joue sa fragilité résiduelle.",
+   menaces:[["Concentration sur un site",70],["Prédateurs introduits",52],["Changement des pratiques de pêche",48],["Dérangement",34]],
+   faits:[["Couples en 1960","≈ 1 000"],["Couples aujourd'hui","≈ 20 000"],["Tendance","Stable"],["Dernière évaluation","2018"]]},
+
+  {fr:"Posidonie", lat:"Posidonia oceanica", st:"LC", milieu:"Marin", region:"Toute la Méditerranée", tend:"↓", reste:"−30 % depuis 1970",
+   txt:"Ce n'est pas une algue mais une plante à fleurs, qui forme des prairies sous-marines où se reproduisent des centaines d'espèces. Elle progresse d'environ un centimètre par an. Une ancre de yacht qui laboure un herbier détruit en une minute ce qui a mis un siècle à pousser.",
+   menaces:[["Ancrage des bateaux",84],["Aménagements côtiers",76],["Réchauffement des eaux",62],["Turbidité de l'eau",50]],
+   faits:[["Croissance","≈ 1 cm par an"],["Perte depuis 1970","≈ 30 %"],["Tendance","En baisse"],["Dernière évaluation","2010"]]}
+
 ];
 
 /* ═════════════════════════════════════════════
@@ -964,6 +1059,10 @@ function filtrer(){
   });
 }
 
+/* index par nom latin : le registre est la source unique.
+   La carte, les portraits et les fiches y puisent tous. */
+const PAR_LAT = new Map(ESPECES.map(e => [e.lat, e]));
+
 /* ═════════════════════════════════════════════
    VIGNETTES
    La photo est demandée à Wikipédia au moment où
@@ -1108,6 +1207,39 @@ function rendre(){
       ${gabaritFiche(e)}
     </article>`;
   }).join('');
+}
+
+/* ═════════════════════════════════════════════
+   OUVRIR UNE FICHE DEPUIS AILLEURS
+   Appelée par la carte. Lève les filtres pour que
+   la ligne soit forcément dans la liste rendue,
+   sinon on ferait défiler vers du vide.
+   ═════════════════════════════════════════════ */
+function ouvrirFiche(binome){
+  const e = PAR_LAT.get(binome);
+  if(!e) return false;
+
+  degreActif = null;
+  grille.querySelectorAll('.degre').forEach(x => x.setAttribute('aria-pressed','false'));
+  milieuActif = 'Tous';
+  boiteFiltres.querySelectorAll('.puce').forEach(x =>
+    x.setAttribute('aria-pressed', String(x.dataset.m === 'Tous')));
+  champRecherche.value = '';
+
+  const id = sansAccent(binome).replace(/\s+/g,'-');
+  ouverts.add(id);
+  rendre();
+
+  const ligne = liste.querySelector(`[data-id="${id}"]`);
+  if(!ligne) return false;
+
+  const v = ligne.querySelector('.vignette');
+  if(v) poserPhoto(v, binome);
+
+  ligne.scrollIntoView({behavior:'smooth', block:'center'});
+  ligne.classList.add('surligne');
+  setTimeout(() => ligne.classList.remove('surligne'), 1800);
+  return true;
 }
 
 liste.addEventListener('click', e => {
@@ -1292,58 +1424,68 @@ const HEX = {LC:'#5BA85A',NT:'#9EC24C',VU:'#E5B23A',EN:'#E07A2C',
              CR:'#D4382C',EW:'#AD9CC7',EX:'#93A3A9'};
 
 const MED = [
-  {fr:"Phoque moine de Méditerranée", lat:"Monachus monachus", st:"EN", note:"Grottes de mise bas",
+  {lat:"Monachus monachus", note:"Grottes de mise bas",
    pts:[[37.62,24.72,"Gyaros, Cyclades"],[39.15,23.87,"Alonissos, Sporades"],[35.57,27.16,"Karpathos"],
-        [38.67,26.75,"Foça, Turquie"],[35.50,23.60,"Ouest de la Crète"]]},
+        [38.67,26.75,"Foça, Turquie"],[35.50,23.60,"Ouest de la Crète"],
+        [38.55,26.35,"Péninsule de Karaburun"],[36.30,27.80,"Rhodes"]]},
 
-  {fr:"Grande nacre", lat:"Pinna nobilis", st:"CR", note:"Décimée par un parasite depuis 2016",
+  {lat:"Pinna nobilis", note:"Décimée par un parasite depuis 2016",
    pts:[[43.42,3.62,"Étang de Thau"],[42.57,8.75,"Baie de Calvi"],[37.72,-0.78,"Mar Menor"],
         [35.20,26.10,"Baie de Sitia, Crète"],[45.30,13.35,"Istrie"],[40.60,27.50,"Golfe de Bandırma"],[40.72,14.05,"Golfe de Naples"],[43.60,15.90,"Archipel de Kornati"]]},
 
-  {fr:"Ange de mer commun", lat:"Squatina squatina", st:"CR", note:"Requin de fond, disparu de la plupart des côtes",
+  {lat:"Squatina squatina", note:"Requin de fond, disparu de la plupart des côtes",
    pts:[[39.55,2.65,"Îles Baléares"],[34.20,10.45,"Golfe de Gabès"],[40.30,25.20,"Égée septentrionale"],[40.45,27.10,"Marmara occidentale"],[31.50,30.50,"Plateau du delta du Nil"],[36.60,2.60,"Cap Ténès"]]},
 
-  {fr:"Anguille d'Europe", lat:"Anguilla anguilla", st:"CR", note:"Lagunes et deltas de remontée",
+  {lat:"Anguilla anguilla", note:"Lagunes et deltas de remontée",
    pts:[[43.50,4.45,"Camargue"],[40.72,0.72,"Delta de l'Èbre"],[45.42,12.32,"Lagune de Venise"],
-        [37.20,9.85,"Lac de Bizerte"],[39.35,9.05,"Étangs de Cagliari"]]},
+        [37.20,9.85,"Lac de Bizerte"],[39.35,9.05,"Étangs de Cagliari"],
+        [41.05,29.60,"Bosphore"],[31.30,32.00,"Lac Manzala"],[37.55,21.30,"Lagune de Kotychi"],
+        [43.05,17.45,"Delta de la Neretva"]]},
 
-  {fr:"Puffin des Baléares", lat:"Puffinus mauretanicus", st:"CR", note:"Niche sur quelques îlots seulement",
+  {lat:"Puffinus mauretanicus", note:"Niche sur quelques îlots seulement",
    pts:[[38.70,1.45,"Formentera"],[39.15,2.93,"Archipel de Cabrera"],[43.10,3.70,"Golfe du Lion"]]},
 
-  {fr:"Requin-marteau halicorne", lat:"Sphyrna lewini", st:"CR", note:"Presque plus signalé en Méditerranée",
+  {lat:"Sphyrna lewini", note:"Presque plus signalé en Méditerranée",
    pts:[[37.10,12.40,"Détroit de Sicile"],[36.20,-3.60,"Mer d'Alboran"]]},
 
-  {fr:"Corail rouge", lat:"Corallium rubrum", st:"EN", note:"Colonies profondes, croissance très lente",
+  {lat:"Corallium rubrum", note:"Colonies profondes, croissance très lente",
    pts:[[42.50,3.15,"Côte Vermeille"],[40.57,8.30,"Alghero, Sardaigne"],[38.20,15.60,"Détroit de Messine"],
         [36.72,-4.10,"Côte de Malaga"],[36.90,4.50,"Côte de Kabylie"],[35.85,14.30,"Falaises de Malte"],[42.75,17.20,"Presqu'île de Pelješac"]]},
 
-  {fr:"Cachalot", lat:"Physeter macrocephalus", st:"EN", note:"Sous-population méditerranéenne isolée",
+  {lat:"Physeter macrocephalus", note:"Sous-population méditerranéenne isolée",
    pts:[[36.30,21.60,"Fosse hellénique"],[43.40,8.20,"Mer Ligure"],[35.95,-5.60,"Détroit de Gibraltar"],[39.80,14.00,"Bassin tyrrhénien sud"],[32.60,33.90,"Bassin levantin"]]},
 
-  {fr:"Pocheteau blanc", lat:"Rostroraja alba", st:"EN", note:"Grande raie de fond sableux",
+  {lat:"Rostroraja alba", note:"Grande raie de fond sableux",
    pts:[[33.90,10.10,"Golfe de Gabès"],[38.00,13.20,"Nord de la Sicile"],[31.80,30.20,"Large d'Alexandrie"]]},
 
-  {fr:"Rorqual commun", lat:"Balaenoptera physalus", st:"VU", note:"Zone d'alimentation estivale",
+  {lat:"Balaenoptera physalus", note:"Zone d'alimentation estivale",
    pts:[[42.80,8.60,"Sanctuaire Pelagos"],[42.60,4.50,"Golfe du Lion"],[38.40,16.30,"Mer Tyrrhénienne"],[40.30,13.50,"Large d'Ischia"],[37.40,12.00,"Banc de Skerki"]]},
 
-  {fr:"Tortue caouanne", lat:"Caretta caretta", st:"VU", note:"Plages de ponte",
+  {lat:"Caretta caretta", note:"Plages de ponte",
    pts:[[37.72,20.87,"Zakynthos"],[37.25,21.65,"Kyparissia"],[36.77,28.63,"Dalyan, Turquie"],
         [34.92,32.33,"Cap Lara, Chypre"],[38.10,16.05,"Côte calabraise"],[36.05,14.25,"Malte"],[32.45,34.87,"Plages de Sharon"],[32.70,22.60,"Côte cyrénaïque"],[31.45,31.00,"Delta du Nil"],[40.02,15.28,"Côte du Cilento"],[42.80,17.60,"Canal de Neretva"]]},
 
-  {fr:"Mérou brun", lat:"Epinephelus marginatus", st:"VU", note:"Revient là où la pêche est interdite",
+  {lat:"Epinephelus marginatus", note:"Revient là où la pêche est interdite",
    pts:[[43.00,6.40,"Port-Cros"],[42.37,8.55,"Réserve de Scandola"],[42.05,3.22,"Îles Medes"],
         [36.95,11.20,"Îles Zembra"],[40.58,14.33,"Punta Campanella"],[33.08,35.10,"Rosh Hanikra"],[35.73,1.12,"Îles Habibas"]]},
 
-  {fr:"Grand dauphin", lat:"Tursiops truncatus", st:"VU", note:"Sous-population méditerranéenne",
+  {lat:"Tursiops truncatus", note:"Sous-population méditerranéenne",
    pts:[[39.00,20.90,"Golfe d'Ambracie"],[45.05,13.60,"Côte istrienne"],[43.20,5.60,"Côte marseillaise"],[40.70,28.60,"Mer de Marmara"],[40.70,14.10,"Golfe de Naples"],[32.30,34.60,"Large de Netanya"],[31.60,28.80,"Large de Marsa Matruh"],[44.60,14.45,"Cres et Lošinj"]]},
 
-  {fr:"Goéland d'Audouin", lat:"Ichthyaetus audouinii", st:"LC", note:"Revenu de 1 000 à 20 000 couples",
+  {lat:"Ichthyaetus audouinii", note:"Revenu de 1 000 à 20 000 couples",
    pts:[[40.72,0.75,"Delta de l'Èbre"],[35.18,-2.43,"Îles Chafarinas"],[39.60,2.35,"Majorque"],[37.00,11.10,"Archipel de Zembra"]]},
 
-  {fr:"Posidonie", lat:"Posidonia oceanica", st:"LC", note:"Herbiers en recul mesuré chaque année",
+  {lat:"Posidonia oceanica", note:"Herbiers en recul mesuré chaque année",
    pts:[[42.57,8.78,"Baie de Calvi"],[39.60,2.60,"Baléares"],[34.00,10.80,"Golfe de Gabès"],
         [43.15,6.15,"Rade d'Hyères"],[40.73,13.90,"Herbiers d'Ischia"],[34.70,33.10,"Côte chypriote"],[36.85,3.90,"Baie de Bou Ismaïl"],[43.20,16.30,"Côte de Hvar"]]}
 ];
+
+/* nom et statut viennent du registre, jamais recopiés ici */
+MED.forEach(m => {
+  const f = PAR_LAT.get(m.lat);
+  if(!f){ console.warn('Aucune fiche au registre pour', m.lat); return; }
+  m.fr = f.fr; m.st = f.st;
+});
 
 const VILLES = [
   ["Marseille",43.30,5.37],["Nice",43.70,7.27],["Ajaccio",41.93,8.74],
@@ -1461,12 +1603,23 @@ const RAYONS = [100,250,500];
         color:'#04141A', weight:1.2,
         fillColor:HEX[e.st], fillOpacity:.85
       });
-      m.bindPopup(
-        `<span class="vignette" data-taxon="${e.lat}"></span>` +
-        `<b>${e.fr}</b><em>${e.lat}</em>` +
-        `<span class="lieu">${lieu} · ${e.note}</span>`,
-        {maxWidth:260, minWidth:220}
-      );
+      m.bindPopup(() => {
+        const d = document.createElement('div');
+        const v = document.createElement('span');
+        v.className = 'vignette';
+        d.appendChild(v);
+        d.insertAdjacentHTML('beforeend',
+          `<button class="popup-nom" type="button">${e.fr}</button>` +
+          `<em>${e.lat}</em>` +
+          `<span class="lieu">${lieu} · ${e.note}</span>` +
+          `<button class="popup-voir" type="button">Ouvrir la fiche</button>`);
+        d.querySelectorAll('.popup-nom, .popup-voir').forEach(b =>
+          b.addEventListener('click', () => ouvrirFiche(e.lat)));
+        /* construire la bulle en DOM plutôt qu'en chaîne permet de lancer
+           la photo tout de suite, sans dépendre d'un événement d'ouverture */
+        poserPhoto(v, e.lat, () => { const pp = m.getPopup(); if(pp) pp.update(); });
+        return d;
+      }, {maxWidth:260, minWidth:220});
       marqueurs.push({m, i, la, ln, lieu, d:Infinity});
     });
   });
@@ -1515,12 +1668,6 @@ const RAYONS = [100,250,500];
     rafRegroupe = requestAnimationFrame(() => { rafRegroupe = null; regrouper(); });
   }
   carte.on('zoomend', regrouperBientot);
-
-  /* la photo n'arrive qu'à l'ouverture : il faut replacer la bulle ensuite */
-  carte.on('popupopen', ev => {
-    const el = ev.popup.getElement().querySelector('.vignette');
-    if(el) poserPhoto(el, el.dataset.taxon, () => ev.popup.update());
-  });
 
   /* ── origine ── */
   let cercle = null, moi = null, rayon = 250;
@@ -1596,11 +1743,21 @@ const RAYONS = [100,250,500];
     /* liste de proximité */
     boiteProches.innerHTML = dedans.length
       ? dedans.map(x => `
-          <button class="prox" type="button" data-la="${x.o.la}" data-ln="${x.o.ln}">
-            <span class="statut" style="--c:${HEX[x.e.st]}">${x.e.st}</span>
-            <span><b>${x.e.fr}</b><i>${x.e.lat}</i></span>
-            <span class="km">${Math.round(x.d)} km</span>
-          </button>`).join('')
+          <div class="prox">
+            <button class="prox-aller" type="button" data-la="${x.o.la}" data-ln="${x.o.ln}"
+                    title="Montrer sur la carte">
+              <span class="statut" style="--c:${HEX[x.e.st]}">${x.e.st}</span>
+              <span><b>${x.e.fr}</b><i>${x.e.lat}</i></span>
+              <span class="km">${Math.round(x.d)} km</span>
+            </button>
+            <button class="prox-fiche" type="button" data-lat="${x.e.lat}"
+                    title="Ouvrir la fiche" aria-label="Ouvrir la fiche de ${x.e.fr}">
+              <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M5 2.5L9.5 7L5 11.5" fill="none" stroke="currentColor"
+                      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>`).join('')
       : `<p class="prox-vide">Rien dans ce rayon. Essayez 500 km, ou une ville plus au sud du bassin.</p>`;
 
     /* cercle + position */
@@ -1633,7 +1790,10 @@ const RAYONS = [100,250,500];
   });
 
   boiteProches.addEventListener('click', e => {
-    const b = e.target.closest('.prox'); if(!b) return;
+    const fiche = e.target.closest('.prox-fiche');
+    if(fiche){ ouvrirFiche(fiche.dataset.lat); return; }
+
+    const b = e.target.closest('.prox-aller'); if(!b) return;
     const la = +b.dataset.la, ln = +b.dataset.ln;
     const cible = marqueurs.find(o => o.la === la && o.ln === ln);
     carte.flyTo([la, ln], 8, {duration:.8});

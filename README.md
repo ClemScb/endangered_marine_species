@@ -68,12 +68,20 @@ l'exigent dans leurs conditions.
 
 Tout est dans `index.html`, en clair, sans base de données.
 
-- **`ESPECES`** (premier `<script>`) — le registre. Un objet par espèce :
-  nom français, binôme latin, statut UICN, milieu, région, texte, pressions,
-  faits. Les liens de vérification vers l'UICN, GBIF et Wikipédia sont
-  construits automatiquement à partir du binôme latin.
-- **`MED`** (second `<script>`) — les espèces de la carte et leurs sites.
-  Format : `[latitude, longitude, "Nom du lieu"]`.
+- **`ESPECES`** (premier `<script>`) — **la source unique**. Un objet par
+  espèce : nom français, binôme latin, statut UICN, milieu, région, texte,
+  pressions, faits. Les liens de vérification vers l'UICN, GBIF et Wikipédia,
+  ainsi que la photo, sont construits automatiquement à partir du binôme latin.
+- **`MED`** (second `<script>`) — uniquement les **coordonnées**. Chaque entrée
+  porte un binôme latin, une note de contexte et ses sites :
+  `[latitude, longitude, "Nom du lieu"]`. Le nom français et le statut ne sont
+  jamais recopiés ici : ils sont lus dans `ESPECES` au chargement via l'index
+  `PAR_LAT`.
+
+  **Conséquence : pour ajouter une espèce à la carte, il faut d'abord lui créer
+  une fiche dans `ESPECES`.** Sinon la console affiche un avertissement et
+  l'espèce est ignorée. C'est volontaire — un point sans fiche serait un
+  cul-de-sac pour le visiteur.
 - **`VILLES`** — les points de départ proposés. Format : `["Nom", lat, lon]`.
 - **`DEGRES`** — les effectifs affichés sur l'échelle UICN.
 
